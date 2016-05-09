@@ -1,7 +1,50 @@
 <?xml version='1.0' encoding='utf-8'?>
 <plugin id="cordova-plugin-multiple-media-selection" version="0.0.1" xmlns="http://apache.org/cordova/ns/plugins/1.0" xmlns:android="http://schemas.android.com/apk/res/android">
     <name>cordova-plugin-multiple-media-selection</name>
+    <description>Plugin for selecting or capturing multiple images/videos.</description>
+    <license>MIT</license>
+    <engines>
+      <engine name="cordova-ios" version=">=3.0.0" />
+    </engines>
     <js-module name="cordova-plugin-multiple-media-selection" src="www/cordova-plugin-multiple-media-selection.js">
         <clobbers target="cordova.plugins.cordova-plugin-multiple-media-selection" />
     </js-module>
+    <!-- ios -->
+    <platform name="ios">
+      <config-file target="config.xml" parent="/*">
+        <feature name="MultipleMediaSelection">
+          <param name="ios-package" value="MultipleMediaSelection"/>
+        </feature>
+      </config-file>
+
+      <header-file src="src/ios/MultipleMediaSelection.h" />
+      <source-file src="src/ios/MultipleMediaSelection.m" />
+
+      <header-file src="src/ios/QBImagePicker/QBAlbumCell.h" />
+      <source-file src="src/ios/QBImagePicker/QBAlbumCell.m" />
+      <header-file src="src/ios/QBImagePicker/QBAssetCell.h" />
+      <source-file src="src/ios/QBImagePicker/QBAssetCell.m" />
+      <header-file src="src/ios/QBImagePicker/QBCheckmarkView.h" />
+      <source-file src="src/ios/QBImagePicker/QBCheckmarkView.m" />
+      <header-file src="src/ios/QBImagePicker/QBVideoIconView.h" />
+      <source-file src="src/ios/QBImagePicker/QBVideoIconView.m" />
+      <header-file src="src/ios/QBImagePicker/QBSlomoIconView.h" />
+      <source-file src="src/ios/QBImagePicker/QBSlomoIconView.m" />
+      <header-file src="src/ios/QBImagePicker/QBVideoIndicatorView.h" />
+      <source-file src="src/ios/QBImagePicker/QBVideoIndicatorView.m" />
+
+      <header-file src="src/ios/QBImagePicker/QBImagePickerController.h" />
+      <source-file src="src/ios/QBImagePicker/QBImagePickerController.m" />
+      <header-file src="src/ios/QBImagePicker/QBAlbumsViewController.h" />
+      <source-file src="src/ios/QBImagePicker/QBAlbumsViewController.m" />
+      <header-file src="src/ios/QBImagePicker/QBAssetsViewController.h" />
+      <source-file src="src/ios/QBImagePicker/QBAssetsViewController.m" />
+
+      <resource-file src="src/ios/QBImagePicker/en.lproj/QBImagePicker.strings" />
+      <resource-file src="src/ios/QBImagePicker/QBImagePicker.storyboard" />
+
+      <framework src="QuartzCore.framework" />
+      <framework src="Photos.framework" />
+      <framework src="ImageIO.framework" />
+  </platform>
 </plugin>
