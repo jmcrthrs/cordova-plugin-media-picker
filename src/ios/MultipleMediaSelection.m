@@ -102,8 +102,15 @@
             [manager requestAVAssetForVideo:asset options:nil resultHandler:^(AVAsset *videoAsset, AVAudioMix *audioMix, NSDictionary *info) {
                 if ([videoAsset isKindOfClass:[AVURLAsset class]])
                 {
-                    NSURL *url = [(AVURLAsset*)videoAsset URL];
-                    [resultStrings addObject:[url absoluteString]];
+                    NSString *filePath = [self tempFilePath:@"mp4"];
+		    NSURL *fileURL = [NSURL fileURLWithPath:filePath isDirectory:NO];
+		
+		    NSURL *inputURL = [(AVURLAsset*)videoAsset URL];
+		    NSData *videoData = [NSData dataWithContentsOfURL:inputURL];
+
+		    [videoData writeToFile: filePath atomically:YES];
+
+                    [resultStrings addObject:[fileURL absoluteString]];
                     if ([resultStrings count] == [assets count]) {
                         CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsArray:resultStrings];
                         [self didFinishImagesWithResult:pluginResult];
