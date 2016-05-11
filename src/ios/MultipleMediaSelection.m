@@ -6,6 +6,8 @@
 #import <ImageIO/ImageIO.h>
 #import <MobileCoreServices/MobileCoreServices.h>
 
+#define CDV_PHOTO_PREFIX @"cdv_photo_"
+
 @interface MultipleMediaSelection ()
 
 @property (copy) NSString* callbackId;
@@ -57,6 +59,21 @@
     }];
 }
 
+- (NSString*)tempFilePath:(NSString*)extension
+{
+    NSString* docsPath = [NSTemporaryDirectory()stringByStandardizingPath];
+    NSFileManager* fileMgr = [[NSFileManager alloc] init]; // recommended by Apple (vs [NSFileManager defaultManager]) to be threadsafe
+    NSString* filePath;
+
+    // generate unique file name
+    int i = 1;
+    do {
+        filePath = [NSString stringWithFormat:@"%@/%@%03d.%@", docsPath, CDV_PHOTO_PREFIX, i++, extension];
+    } while ([fileMgr fileExistsAtPath:filePath]);
+
+    return filePath;
+}
+
 #pragma mark - QBImagePickerControllerDelegate
 
 - (void)qb_imagePickerController:(QBImagePickerController *)imagePickerController didFinishPickingAssets:(NSArray *)assets
@@ -72,8 +89,10 @@
     for (PHAsset *asset in assets) {
         if (asset.mediaType == PHAssetMediaTypeImage) {
             [manager requestImageDataForAsset: asset options: options resultHandler:^(NSData *imageData, NSString *dataUTI, UIImageOrientation orientation, NSDictionary *info) {
-                NSURL *url = [info objectForKey:@"PHImageFileURLKey"];
-                [resultStrings addObject:[url absoluteString]];
+                NSString *filePath = [self tempFilePath:@"jpg"];
+        	NSURL *fileURL = [NSURL fileURLWithPath:filePath isDirectory:NO];
+		[imageData writeToFile:filePath atomically:YES];
+		[resultStrings addObject:[fileURL absoluteString]];
                 if ([resultStrings count] == [assets count]) {
                     CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsArray:resultStrings];
                     [self didFinishImagesWithResult:pluginResult];
