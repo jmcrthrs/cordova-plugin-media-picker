@@ -59,18 +59,18 @@
     }];
 }
 
-- (NSString*)tempFilePath:(NSString*)extension
+- (NSString*)tempFilePath:(NSString*)extension assetNumber:(int)assetNumber
 {
     NSString* docsPath = [NSTemporaryDirectory()stringByStandardizingPath];
     NSFileManager* fileMgr = [[NSFileManager alloc] init]; // recommended by Apple (vs [NSFileManager defaultManager]) to be threadsafe
     NSString* filePath;
-
+    
     // generate unique file name
     int i = 1;
     do {
-        filePath = [NSString stringWithFormat:@"%@/%@%03d.%@", docsPath, CDV_PHOTO_PREFIX, i++, extension];
+        filePath = [NSString stringWithFormat:@"%@/%@%03d_%03d.%@", docsPath, CDV_PHOTO_PREFIX, i++, assetNumber, extension];
     } while ([fileMgr fileExistsAtPath:filePath]);
-
+    
     return filePath;
 }
 
@@ -86,13 +86,14 @@
     
     __block NSMutableArray *resultStrings = [[NSMutableArray alloc] init];
     
+    int assetNumber = 0;
     for (PHAsset *asset in assets) {
         if (asset.mediaType == PHAssetMediaTypeImage) {
             [manager requestImageDataForAsset: asset options: options resultHandler:^(NSData *imageData, NSString *dataUTI, UIImageOrientation orientation, NSDictionary *info) {
-                NSString *filePath = [self tempFilePath:@"jpg"];
-        	NSURL *fileURL = [NSURL fileURLWithPath:filePath isDirectory:NO];
-		[imageData writeToFile:filePath atomically:YES];
-		[resultStrings addObject:[fileURL absoluteString]];
+                NSString *filePath = [self tempFilePath:@"jpg" assetNumber:assetNumber];
+                NSURL *fileURL = [NSURL fileURLWithPath:filePath isDirectory:NO];
+                [imageData writeToFile:filePath atomically:YES];
+                [resultStrings addObject:[fileURL absoluteString]];
                 if ([resultStrings count] == [assets count]) {
                     CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsArray:resultStrings];
                     [self didFinishImagesWithResult:pluginResult];
@@ -102,14 +103,14 @@
             [manager requestAVAssetForVideo:asset options:nil resultHandler:^(AVAsset *videoAsset, AVAudioMix *audioMix, NSDictionary *info) {
                 if ([videoAsset isKindOfClass:[AVURLAsset class]])
                 {
-                    NSString *filePath = [self tempFilePath:@"mp4"];
-		    NSURL *fileURL = [NSURL fileURLWithPath:filePath isDirectory:NO];
-		
-		    NSURL *inputURL = [(AVURLAsset*)videoAsset URL];
-		    NSData *videoData = [NSData dataWithContentsOfURL:inputURL];
-
-		    [videoData writeToFile: filePath atomically:YES];
-
+                    NSString *filePath = [self tempFilePath:@"mp4" assetNumber:assetNumber];
+                    NSURL *fileURL = [NSURL fileURLWithPath:filePath isDirectory:NO];
+                    
+                    NSURL *inputURL = [(AVURLAsset*)videoAsset URL];
+                    NSData *videoData = [NSData dataWithContentsOfURL:inputURL];
+                    
+                    [videoData writeToFile: filePath atomically:YES];
+                    
                     [resultStrings addObject:[fileURL absoluteString]];
                     if ([resultStrings count] == [assets count]) {
                         CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsArray:resultStrings];
@@ -124,6 +125,8 @@
             [self.commandDelegate sendPluginResult:pluginResult callbackId:self.callbackId];
             self.callbackId = nil;
         }
+        
+        assetNumber++;
     }
     
     __weak MultipleMediaSelection* weakSelf = self;
@@ -146,3 +149,4 @@
     [weakSelf.viewController dismissViewControllerAnimated:YES completion:NULL];
 }
 @end
+
