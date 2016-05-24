@@ -59,23 +59,24 @@
     }];
 }
 
-- (NSString*)tempFilePath:(NSString*)extension assetNumber:(int)assetNumber
+- (NSString*)getAssetFilePath:(NSString*)extension
 {
-    NSString* docsPath = [NSTemporaryDirectory()stringByStandardizingPath];
+    NSArray* paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+    NSString* docsPath = ([paths count] > 0) ? [paths objectAtIndex:0] : nil;
+    
     NSFileManager* fileMgr = [[NSFileManager alloc] init]; // recommended by Apple (vs [NSFileManager defaultManager]) to be threadsafe
     NSString* filePath;
     
     // generate unique file name
     int i = 1;
     do {
-        filePath = [NSString stringWithFormat:@"%@/%@%03d_%03d.%@", docsPath, CDV_PHOTO_PREFIX, i++, assetNumber, extension];
+        filePath = [NSString stringWithFormat:@"%@/%@%05d.%@", docsPath, CDV_PHOTO_PREFIX, i++, extension];
     } while ([fileMgr fileExistsAtPath:filePath]);
     
     return filePath;
 }
 
 #pragma mark - QBImagePickerControllerDelegate
-
 - (void)qb_imagePickerController:(QBImagePickerController *)imagePickerController didFinishPickingAssets:(NSArray *)assets
 {
     NSLog(@"Selected assets:");
@@ -86,11 +87,10 @@
     
     __block NSMutableArray *resultStrings = [[NSMutableArray alloc] init];
     
-    int assetNumber = 0;
     for (PHAsset *asset in assets) {
         if (asset.mediaType == PHAssetMediaTypeImage) {
             [manager requestImageDataForAsset: asset options: options resultHandler:^(NSData *imageData, NSString *dataUTI, UIImageOrientation orientation, NSDictionary *info) {
-                NSString *filePath = [self tempFilePath:@"jpg" assetNumber:assetNumber];
+                NSString *filePath = [self getAssetFilePath:@"jpg"];
                 NSURL *fileURL = [NSURL fileURLWithPath:filePath isDirectory:NO];
                 [imageData writeToFile:filePath atomically:YES];
                 [resultStrings addObject:[fileURL absoluteString]];
@@ -100,10 +100,11 @@
                 }
             }];
         } else if (asset.mediaType == PHAssetMediaTypeVideo) {
+            dispatch_semaphore_t sem = dispatch_semaphore_create(0);
             [manager requestAVAssetForVideo:asset options:nil resultHandler:^(AVAsset *videoAsset, AVAudioMix *audioMix, NSDictionary *info) {
                 if ([videoAsset isKindOfClass:[AVURLAsset class]])
                 {
-                    NSString *filePath = [self tempFilePath:@"mp4" assetNumber:assetNumber];
+                    NSString *filePath = [self getAssetFilePath:@"mp4"];
                     NSURL *fileURL = [NSURL fileURLWithPath:filePath isDirectory:NO];
                     
                     NSURL *inputURL = [(AVURLAsset*)videoAsset URL];
@@ -116,17 +117,15 @@
                         CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsArray:resultStrings];
                         [self didFinishImagesWithResult:pluginResult];
                     }
-                    
                 }
-                
+                dispatch_semaphore_signal(sem);
             }];
+            dispatch_semaphore_wait(sem, DISPATCH_TIME_FOREVER);
         } else {
             CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"Unhandled Asset Type."];
             [self.commandDelegate sendPluginResult:pluginResult callbackId:self.callbackId];
             self.callbackId = nil;
         }
-        
-        assetNumber++;
     }
     
     __weak MultipleMediaSelection* weakSelf = self;
