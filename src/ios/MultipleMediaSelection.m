@@ -108,10 +108,15 @@
                     NSURL *fileURL = [NSURL fileURLWithPath:filePath isDirectory:NO];
                     
                     NSURL *inputURL = [(AVURLAsset*)videoAsset URL];
-                    NSData *videoData = [NSData dataWithContentsOfURL:inputURL];
-                    
-                    [videoData writeToFile: filePath atomically:YES];
-                    
+                    /*NSData *videoData = [NSData dataWithContentsOfURL:inputURL];
+                     
+                     [videoData writeToFile: filePath atomically:YES];*/
+                    NSError *error = nil ;
+                    BOOL res = [[NSFileManager defaultManager] copyItemAtPath:[inputURL path] toPath:filePath error:&error];
+                    if(!res) {
+                        CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"Unable to import media."];
+                        [self.commandDelegate sendPluginResult:pluginResult callbackId:self.callbackId];
+                    }
                     [resultStrings addObject:[fileURL absoluteString]];
                     if ([resultStrings count] == [assets count]) {
                         CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsArray:resultStrings];
