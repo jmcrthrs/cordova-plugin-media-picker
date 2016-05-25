@@ -114,7 +114,7 @@
                     NSError *error = nil ;
                     BOOL res = [[NSFileManager defaultManager] copyItemAtPath:[inputURL path] toPath:filePath error:&error];
                     if(!res) {
-                        CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"Unable to import media."];
+                        CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:[error localizedDescription]];
                         [self.commandDelegate sendPluginResult:pluginResult callbackId:self.callbackId];
                     }
                     [resultStrings addObject:[fileURL absoluteString]];
