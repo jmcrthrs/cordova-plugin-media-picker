@@ -49,53 +49,170 @@
     </platform>
     <!-- android -->
     <platform name="android">
+        <framework src="com.android.support:appcompat-v7:+"/>
+
         <config-file target="res/xml/config.xml" parent="/*">
             <feature name="MultipleMediaSelection">
-                <param name="android-package" value="com.synconset.ImagePicker"/>
+                <param name="android-package" value="vn.tungdx.mediapicker.MediaPicker"/>
             </feature>
         </config-file>
 
         <config-file target="AndroidManifest.xml" parent="/manifest/application">
-            <activity android:label="@string/multi_app_name" android:name="com.synconset.MultiImageChooserActivity" android:theme="@android:style/Theme.Holo.Light">
-            </activity>
+            <activity
+                    android:name="vn.tungdx.mediapicker.activities.MediaPickerActivity"
+                    android:screenOrientation="portrait"
+                    android:theme="@style/MediaPickerTheme" />
         </config-file>
 
-        <config-file target="AndroidManifest.xml" parent="/manifest">
+        <config-file target="AndroidManifest.xml" parent="/manifest/application">
             <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
         </config-file>
 
-        <source-file src="src/android/com/synconset/ImagePicker/ImagePicker.java" target-dir="src/com/synconset" />
-        <source-file src="src/android/com/synconset/ImagePicker/FakeR.java" target-dir="src/com/synconset" />
+        <source-file src="src/android/Library/java/vn/tungdx/mediapicker/activities/BaseFragment.java" target-dir="src/vn/tungdx" />
+        <source-file src="src/android/Library/java/vn/tungdx/mediapicker/activities/FragmentHost.java" target-dir="src/vn/tungdx" />
+        <source-file src="src/android/Library/java/vn/tungdx/mediapicker/activities/MediaPickerActivity.java" target-dir="src/vn/tungdx" />
+            <source-file src="src/android/Library/java/vn/tungdx/mediapicker/activities/MediaPickerErrorDialog.java" target-dir="src/vn/tungdx" />
+        <source-file src="src/android/Library/java/vn/tungdx/mediapicker/activities/MediaPickerFragment.java" target-dir="src/vn/tungdx" />
 
-        <source-file src="src/android/Library/src/ImageFetcher.java" target-dir="src/com/synconset"/>
-        <source-file src="src/android/Library/src/MultiImageChooserActivity.java" target-dir="src/com/synconset"/>
+        <source-file src="src/android/Library/java/vn/tungdx/mediapicker/imageloader/MediaImageLoader.java" target-dir="src/vn/tungdx" />
+        <source-file src="src/android/Library/java/vn/tungdx/mediapicker/imageloader/MediaImageLoaderImpl.java" target-dir="src/vn/tungdx" />
 
-        <source-file src="src/android/Library/res/anim/image_pop_in.xml" target-dir="res/anim"/>
-        <source-file src="src/android/Library/res/drawable/grid_background.xml" target-dir="res/drawable"/>
-        <source-file src="src/android/Library/res/drawable-hdpi/image_bg.9.png" target-dir="res/drawable-hdpi"/>
-        <source-file src="src/android/Library/res/drawable-hdpi/loading_icon.png" target-dir="res/drawable-hdpi"/>
-        <source-file src="src/android/Library/res/drawable-mdpi/ic_action_discard_dark.png" target-dir="res/drawable-mdpi"/>
-        <source-file src="src/android/Library/res/drawable-mdpi/ic_action_discard_light.png" target-dir="res/drawable-mdpi"/>
-        <source-file src="src/android/Library/res/drawable-mdpi/ic_action_done_dark.png" target-dir="res/drawable-mdpi"/>
-        <source-file src="src/android/Library/res/drawable-mdpi/ic_action_done_light.png" target-dir="res/drawable-mdpi"/>
-        <source-file src="src/android/Library/res/drawable-mdpi/ic_launcher.png" target-dir="res/drawable-mdpi"/>
-        <source-file src="src/android/Library/res/drawable-xhdpi/ic_action_discard_dark.png" target-dir="res/drawable-xhdpi"/>
-        <source-file src="src/android/Library/res/drawable-xhdpi/ic_action_discard_light.png" target-dir="res/drawable-xhdpi"/>
-        <source-file src="src/android/Library/res/drawable-xhdpi/ic_action_done_dark.png" target-dir="res/drawable-xhdpi"/>
-        <source-file src="src/android/Library/res/drawable-xhdpi/ic_action_done_light.png" target-dir="res/drawable-xhdpi"/>
-        <source-file src="src/android/Library/res/drawable-xhdpi/ic_launcher.png" target-dir="res/drawable-xhdpi"/>
-        <source-file src="src/android/Library/res/layout/actionbar_custom_view_done_discard.xml" target-dir="res/layout"/>
-        <source-file src="src/android/Library/res/layout/actionbar_discard_button.xml" target-dir="res/layout"/>
-        <source-file src="src/android/Library/res/layout/actionbar_done_button.xml" target-dir="res/layout"/>
-        <source-file src="src/android/Library/res/layout/multiselectorgrid.xml" target-dir="res/layout"/>
-        <source-file src="src/android/Library/res/values/multiimagechooser_strings_en.xml" target-dir="res/values"/>
-        <source-file src="src/android/Library/res/values/themes.xml" target-dir="res/values"/>
+        <source-file src="src/android/Library/java/vn/tungdx/mediapicker/utils/MediaUtils.java" target-dir="src/vn/tungdx" />
+        <source-file src="src/android/Library/java/vn/tungdx/mediapicker/utils/MessageUtils.java" target-dir="src/vn/tungdx" />
+        <source-file src="src/android/Library/java/vn/tungdx/mediapicker/utils/RecursiveFileObserver.java" target-dir="src/vn/tungdx" />
+        <source-file src="src/android/Library/java/vn/tungdx/mediapicker/utils/Utils.java" target-dir="src/vn/tungdx" />
 
-        <source-file src="src/android/Library/res/values-de/multiimagechooser_strings_de.xml" target-dir="res/values-de"/>
-        <source-file src="src/android/Library/res/values-es/multiimagechooser_strings_es.xml" target-dir="res/values-es"/>
-        <source-file src="src/android/Library/res/values-fr/multiimagechooser_strings_fr.xml" target-dir="res/values-fr"/>
-        <source-file src="src/android/Library/res/values-hu/multiimagechooser_strings_hu.xml" target-dir="res/values-hu"/>
-        <source-file src="src/android/Library/res/values-ja/multiimagechooser_strings_ja.xml" target-dir="res/values-ja"/>
-        <source-file src="src/android/Library/res/values-ko/multiimagechooser_strings_ko.xml" target-dir="res/values-ko"/>
-    </platform>
+        <source-file src="src/android/Library/java/vn/tungdx/mediapicker/widget/HeaderGridView.java" target-dir="src/vn/tungdx" />
+        <source-file src="src/android/Library/java/vn/tungdx/mediapicker/widget/PickerImageView.java" target-dir="src/vn/tungdx" />
+
+        <source-file src="src/android/Library/java/vn/tungdx/mediapicker/CropListener.java" target-dir="src/vn/tungdx" />
+        <source-file src="src/android/Library/java/vn/tungdx/mediapicker/MediaAdapter.java" target-dir="src/vn/tungdx" />
+        <source-file src="src/android/Library/java/vn/tungdx/mediapicker/MediaItem.java" target-dir="src/vn/tungdx" />
+        <source-file src="src/android/Library/java/vn/tungdx/mediapicker/MediaOptions.java" target-dir="src/vn/tungdx" />
+        <source-file src="src/android/Library/java/vn/tungdx/mediapicker/MediaSelectedListener.java" target-dir="src/vn/tungdx" />
+
+        <source-file src="src/android/vn/tungdx/MediaPicker/MediaPicker.java" target-dir="src/vn/tungdx" />
+
+        <source-file src="src/android/Library/java/com/nostra13/universalimageloader/cache/disc/impl/ext/DiskLruCache.java" target-dir="src/com/nostra13" />
+        <source-file src="src/android/Library/java/com/nostra13/universalimageloader/cache/disc/impl/ext/LruDiskCache.java" target-dir="src/com/nostra13" />
+        <source-file src="src/android/Library/java/com/nostra13/universalimageloader/cache/disc/impl/ext/StrictLinereader.java" target-dir="src/com/nostra13" />
+        <source-file src="src/android/Library/java/com/nostra13/universalimageloader/cache/disc/impl/ext/Util.java" target-dir="src/com/nostra13" />
+
+        <source-file src="src/android/Library/java/com/nostra13/universalimageloader/cache/disc/impl/BaseDiskCache.java" target-dir="src/com/nostra13" />
+        <source-file src="src/android/Library/java/com/nostra13/universalimageloader/cache/disc/impl/LimitedAgeDiskCache.java" target-dir="src/com/nostra13" />
+        <source-file src="src/android/Library/java/com/nostra13/universalimageloader/cache/disc/impl/UnlimitedDiskCache.java" target-dir="src/com/nostra13" />
+
+        <source-file src="src/android/Library/java/com/nostra13/universalimageloader/cache/disc/naming/FileNameGenerator.java" target-dir="src/com/nostra13" />
+        <source-file src="src/android/Library/java/com/nostra13/universalimageloader/cache/disc/naming/HashCodeFileNameGenerator.java" target-dir="src/com/nostra13" />
+        <source-file src="src/android/Library/java/com/nostra13/universalimageloader/cache/disc/naming/Md5FileNameGenerator.java" target-dir="src/com/nostra13" />
+
+        <source-file src="src/android/Library/java/com/nostra13/universalimageloader/cache/disc/DiskCache.java" target-dir="src/com/nostra13" />
+
+        <source-file src="src/android/Library/java/com/nostra13/universalimageloader/cache/memory/impl/FIFOLimitedMemoryCache.java" target-dir="src/com/nostra13" />
+        <source-file src="src/android/Library/java/com/nostra13/universalimageloader/cache/memory/impl/FuzzyKeyMemoryCache.java" target-dir="src/com/nostra13" />
+        <source-file src="src/android/Library/java/com/nostra13/universalimageloader/cache/memory/impl/LargestLimitedMemoryCache.java" target-dir="src/com/nostra13" />
+        <source-file src="src/android/Library/java/com/nostra13/universalimageloader/cache/memory/impl/LimitedAgeMemoryCache.java" target-dir="src/com/nostra13" />
+        <source-file src="src/android/Library/java/com/nostra13/universalimageloader/cache/memory/impl/LRULimitedMemoryCache.java" target-dir="src/com/nostra13" />
+        <source-file src="src/android/Library/java/com/nostra13/universalimageloader/cache/memory/impl/LruMemoryCache.java" target-dir="src/com/nostra13" />
+        <source-file src="src/android/Library/java/com/nostra13/universalimageloader/cache/memory/impl/UsingFreqLimitedMemoryCache.java" target-dir="src/com/nostra13" />
+        <source-file src="src/android/Library/java/com/nostra13/universalimageloader/cache/memory/impl/WeakMemoryCache.java" target-dir="src/com/nostra13" />
+
+        <source-file src="src/android/Library/java/com/nostra13/universalimageloader/cache/memory/BaseMemoryCache.java" target-dir="src/com/nostra13" />
+        <source-file src="src/android/Library/java/com/nostra13/universalimageloader/cache/memory/LimitedMemoryCache.java" target-dir="src/com/nostra13" />
+        <source-file src="src/android/Library/java/com/nostra13/universalimageloader/cache/memory/MemoryCache.java" target-dir="src/com/nostra13" />
+
+        <source-file src="src/android/Library/java/com/nostra13/universalimageloader/core/assist/deque/BlockingDeque.java" target-dir="src/com/nostra13" />
+        <source-file src="src/android/Library/java/com/nostra13/universalimageloader/core/assist/deque/Deque.java" target-dir="src/com/nostra13" />
+        <source-file src="src/android/Library/java/com/nostra13/universalimageloader/core/assist/deque/LIFOLinkedBlockingDeque.java" target-dir="src/com/nostra13" />
+        <source-file src="src/android/Library/java/com/nostra13/universalimageloader/core/assist/deque/LinkedBlockingDeque.java" target-dir="src/com/nostra13" />
+
+        <source-file src="src/android/Library/java/com/nostra13/universalimageloader/core/assist/ContentLengthInputStream.java" target-dir="src/com/nostra13" />
+        <source-file src="src/android/Library/java/com/nostra13/universalimageloader/core/assist/FailReason.java" target-dir="src/com/nostra13" />
+        <source-file src="src/android/Library/java/com/nostra13/universalimageloader/core/assist/FlushedInputStream.java" target-dir="src/com/nostra13" />
+        <source-file src="src/android/Library/java/com/nostra13/universalimageloader/core/assist/ImageScaleType.java" target-dir="src/com/nostra13" />
+        <source-file src="src/android/Library/java/com/nostra13/universalimageloader/core/assist/ImageSize.java" target-dir="src/com/nostra13" />
+        <source-file src="src/android/Library/java/com/nostra13/universalimageloader/core/assist/LoadedFrom.java" target-dir="src/com/nostra13" />
+        <source-file src="src/android/Library/java/com/nostra13/universalimageloader/core/assist/QueueProcessingType.java" target-dir="src/com/nostra13" />
+        <source-file src="src/android/Library/java/com/nostra13/universalimageloader/core/assist/ViewScaleType.java" target-dir="src/com/nostra13" />
+
+        <source-file src="src/android/Library/java/com/nostra13/universalimageloader/core/decode/BaseImageDecoder.java" target-dir="src/com/nostra13" />
+        <source-file src="src/android/Library/java/com/nostra13/universalimageloader/core/decode/ImageDecoder.java" target-dir="src/com/nostra13" />
+        <source-file src="src/android/Library/java/com/nostra13/universalimageloader/core/decode/ImageDecodingInfo.java" target-dir="src/com/nostra13" />
+
+        <source-file src="src/android/Library/java/com/nostra13/universalimageloader/core/display/BitmapDisplayer.java" target-dir="src/com/nostra13" />
+        <source-file src="src/android/Library/java/com/nostra13/universalimageloader/core/display/CircleBitmapDisplayer.java" target-dir="src/com/nostra13" />
+        <source-file src="src/android/Library/java/com/nostra13/universalimageloader/core/display/FadeInBitmapDisplayer.java" target-dir="src/com/nostra13" />
+        <source-file src="src/android/Library/java/com/nostra13/universalimageloader/core/display/RoundedBitmapDisplayer.java" target-dir="src/com/nostra13" />
+        <source-file src="src/android/Library/java/com/nostra13/universalimageloader/core/display/RoundedVignetteBitmapDisplayer.java" target-dir="src/com/nostra13" />
+        <source-file src="src/android/Library/java/com/nostra13/universalimageloader/core/display/SimpleBitmapDisplayer.java" target-dir="src/com/nostra13" />
+
+        <source-file src="src/android/Library/java/com/nostra13/universalimageloader/core/download/BaseImageDownloader.java" target-dir="src/com/nostra13" />
+        <source-file src="src/android/Library/java/com/nostra13/universalimageloader/core/download/ImageDownloader.java" target-dir="src/com/nostra13" />
+
+        <source-file src="src/android/Library/java/com/nostra13/universalimageloader/core/imageaware/ImageAware.java" target-dir="src/com/nostra13" />
+        <source-file src="src/android/Library/java/com/nostra13/universalimageloader/core/imageaware/ImageViewAware.java" target-dir="src/com/nostra13" />
+        <source-file src="src/android/Library/java/com/nostra13/universalimageloader/core/imageaware/NonViewAware.java" target-dir="src/com/nostra13" />
+        <source-file src="src/android/Library/java/com/nostra13/universalimageloader/core/imageaware/ViewAware.java" target-dir="src/com/nostra13" />
+
+        <source-file src="src/android/Library/java/com/nostra13/universalimageloader/core/listener/ImageLoadingListener.java" target-dir="src/com/nostra13" />
+        <source-file src="src/android/Library/java/com/nostra13/universalimageloader/core/listener/ImageLoadingProgressListener.java" target-dir="src/com/nostra13" />
+        <source-file src="src/android/Library/java/com/nostra13/universalimageloader/core/listener/PauseOnScrollListener.java" target-dir="src/com/nostra13" />
+        <source-file src="src/android/Library/java/com/nostra13/universalimageloader/core/listener/SimpleImageLoadingListener.java" target-dir="src/com/nostra13" />
+
+        <source-file src="src/android/Library/java/com/nostra13/universalimageloader/core/process/BitmapProcessor.java" target-dir="src/com/nostra13" />
+
+        <source-file src="src/android/Library/java/com/nostra13/universalimageloader/core/DefaultConfigurationFactory.java" target-dir="src/com/nostra13" />
+        <source-file src="src/android/Library/java/com/nostra13/universalimageloader/core/DisplayBitmapTask.java" target-dir="src/com/nostra13" />
+        <source-file src="src/android/Library/java/com/nostra13/universalimageloader/core/DisplayImageOptions.java" target-dir="src/com/nostra13" />
+        <source-file src="src/android/Library/java/com/nostra13/universalimageloader/core/ImageLoader.java" target-dir="src/com/nostra13" />
+        <source-file src="src/android/Library/java/com/nostra13/universalimageloader/core/ImageLoaderConfiguration.java" target-dir="src/com/nostra13" />
+        <source-file src="src/android/Library/java/com/nostra13/universalimageloader/core/ImageLoaderEngine.java" target-dir="src/com/nostra13" />
+        <source-file src="src/android/Library/java/com/nostra13/universalimageloader/core/ImageLoadingInfo.java" target-dir="src/com/nostra13" />
+        <source-file src="src/android/Library/java/com/nostra13/universalimageloader/core/LoadAndDisplayImageTask.java" target-dir="src/com/nostra13" />
+        <source-file src="src/android/Library/java/com/nostra13/universalimageloader/core/ProcessAndDisplayImageTask.java" target-dir="src/com/nostra13" />
+
+        <source-file src="src/android/Library/java/com/nostra13/universalimageloader/utils/DiskCacheUtils.java" target-dir="src/com/nostra13" />
+        <source-file src="src/android/Library/java/com/nostra13/universalimageloader/utils/ImageSizeUtils.java" target-dir="src/com/nostra13" />
+        <source-file src="src/android/Library/java/com/nostra13/universalimageloader/utils/IoUtils.java" target-dir="src/com/nostra13" />
+        <source-file src="src/android/Library/java/com/nostra13/universalimageloader/utils/L.java" target-dir="src/com/nostra13" />
+        <source-file src="src/android/Library/java/com/nostra13/universalimageloader/utils/MemoryCacheUtils.java" target-dir="src/com/nostra13" />
+        <source-file src="src/android/Library/java/com/nostra13/universalimageloader/utils/StorageUtils.java" target-dir="src/com/nostra13" />
+
+        <source-file src="src/android/Library/res/drawable/picker_actionbar_translucent.xml" target-dir="res/drawable" />
+        <source-file src="src/android/Library/res/drawable/picker_photogrid_selector.xml" target-dir="res/drawable" />
+
+        <source-file src="src/android/Library/res/drawable-xhdpi/ab_picker_camera.png" target-dir="res/drawable-xhdpi" />
+        <source-file src="src/android/Library/res/drawable-xhdpi/ab_picker_camera2.png" target-dir="res/drawable-xhdpi" />
+        <source-file src="src/android/Library/res/drawable-xhdpi/ab_picker_video.png" target-dir="res/drawable-xhdpi" />
+        <source-file src="src/android/Library/res/drawable-xhdpi/ab_picker_video_2.png" target-dir="res/drawable-xhdpi" />
+        <source-file src="src/android/Library/res/drawable-xhdpi/ic_picker_imagefail.png" target-dir="res/drawable-xhdpi" />
+        <source-file src="src/android/Library/res/drawable-xhdpi/ic_rotate_left.png" target-dir="res/drawable-xhdpi" />
+        <source-file src="src/android/Library/res/drawable-xhdpi/ic_rotate_right.png" target-dir="res/drawable-xhdpi" />
+        <source-file src="src/android/Library/res/drawable-xhdpi/ic_video_grid.png" target-dir="res/drawable-xhdpi" />
+
+        <source-file src="src/android/Library/res/drawable-xxhdpi/ab_picker_camera.png" target-dir="res/drawable-xxhdpi" />
+        <source-file src="src/android/Library/res/drawable-xxhdpi/ab_picker_video.png" target-dir="res/drawable-xxhdpi" />
+
+        <source-file src="src/android/Library/res/layout/activity_mediapicker.xml" target-dir="res/layout" />
+        <source-file src="src/android/Library/res/layout/fragment_mediapicker.xml" target-dir="res/layout" />
+        <source-file src="src/android/Library/res/layout/fragment_mediapicker_crop.xml" target-dir="res/layout" />
+        <source-file src="src/android/Library/res/layout/list_item_mediapicker.xml" target-dir="res/layout" />
+
+        <source-file src="src/android/Library/res/menu/mediapicker_main.xml" target-dir="res/menu" />
+
+        <source-file src="src/android/Library/res/values/dimens.xml" target-dir="res/values" />
+        <source-file src="src/android/Library/res/values/ids.xml" target-dir="res/values" />
+        <source-file src="src/android/Library/res/values/mediapicker_colors.xml" target-dir="res/values" />
+        <source-file src="src/android/Library/res/values/mediapicker_dimens.xml" target-dir="res/values" />
+        <source-file src="src/android/Library/res/values/mediapicker_string.xml" target-dir="res/values" />
+        <source-file src="src/android/Library/res/values/styles.xml" target-dir="res/values" />
+
+        <source-file src="src/android/Library/res/values-sw600dp/mediapicker_dimens.xml" target-dir="res/values-sw600dp" />
+        <config-file target="res/values/strings.xml" parent="/*">
+            <string name="waiting">Waiting&#8230;</string>
+            <string name="cancel">Cancel</string>
+            <string name="save">Save</string>
+            <string name="ok">OK</string>
+        </config-file>
+        </platform>
 </plugin>
