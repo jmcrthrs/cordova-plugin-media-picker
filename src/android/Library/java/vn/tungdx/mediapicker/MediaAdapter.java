@@ -57,19 +57,26 @@ public class MediaAdapter extends CursorAdapter implements RecyclerListener {
     @Override
     public void bindView(View view, Context context, Cursor cursor) {
         final ViewHolder holder = (ViewHolder) view.getTag();
-        final Uri uri;
+        final String path;
+        Uri uri;
+
         if (mMediaType == MediaItem.PHOTO) {
             uri = MediaUtils.getPhotoUri(cursor);
+            path = MediaUtils.getRealImagePathFromURI(context.getContentResolver(), uri);
             holder.thumbnail.setVisibility(View.GONE);
         } else {
             uri = MediaUtils.getVideoUri(cursor);
+            path = MediaUtils.getRealVideoPathFromURI(context.getContentResolver(), uri);
             holder.thumbnail.setVisibility(View.VISIBLE);
         }
+
         boolean isSelected = isSelected(uri);
         holder.imageView.setSelected(isSelected);
         if (isSelected) {
             mPickerImageViewSelected.add(holder.imageView);
         }
+
+        uri = Uri.fromFile(new java.io.File(path));
         mMediaImageLoader.displayImage(uri, holder.imageView);
     }
 
