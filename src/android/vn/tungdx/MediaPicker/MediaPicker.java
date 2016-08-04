@@ -5,6 +5,8 @@ package vn.tungdx.mediapicker;
 
 import org.apache.cordova.CallbackContext;
 import org.apache.cordova.CordovaPlugin;
+import org.apache.cordova.PermissionHelper;
+import org.apache.cordova.PluginResult;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -20,12 +22,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.Manifest;
 import android.util.Log;
 
 import vn.tungdx.mediapicker.activities.MediaPickerActivity;
 import com.buzzcard.brandingtool.R;
-import android.content.Context;
 
 public class MediaPicker extends CordovaPlugin {
 	public static String TAG = "MediaPicker";
@@ -34,28 +38,71 @@ public class MediaPicker extends CordovaPlugin {
 	private CallbackContext callbackContext;
 	private JSONObject params;
 
+	private int REQUEST_CODE_GET_PICTURES = 1000;
+
+	String [] permissions = {Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.CAMERA};
+
 	public boolean execute(String action, final JSONArray args, final CallbackContext callbackContext) throws JSONException {
 		this.callbackContext = callbackContext;
 		this.params = args.getJSONObject(0);
 		if (action.equals("getPictures")) {
-			MediaOptions.Builder builder = new MediaOptions.Builder();
-			MediaOptions options = builder.canSelectBothPhotoVideo().canSelectMultiVideo(true).canSelectMultiPhoto(true).build();
 
-			Context context=this.cordova.getActivity().getApplicationContext();
-			Intent intent = new Intent(context, MediaPickerActivity.class);
-			intent.putExtra(EXTRA_MEDIA_OPTIONS, options);
-
-			if (this.cordova != null) {
-				this.cordova.startActivityForResult((CordovaPlugin) this, intent, 0);
+			if(hasPermisssion()) {
+				getPictures();
+			} else {
+				PermissionHelper.requestPermissions(this, REQUEST_CODE_GET_PICTURES, permissions);
 			}
+			return true;
 		}
 
+		return false;
+	}
+
+	private void getPictures() {
+		MediaOptions.Builder builder = new MediaOptions.Builder();
+		MediaOptions options = builder.canSelectBothPhotoVideo().canSelectMultiVideo(true).canSelectMultiPhoto(true).build();
+
+		Context context = this.cordova.getActivity().getApplicationContext();
+		Intent intent = new Intent(context, MediaPickerActivity.class);
+		intent.putExtra(EXTRA_MEDIA_OPTIONS, options);
+		if (this.cordova != null) {
+            this.cordova.startActivityForResult((CordovaPlugin) this, intent, 0);
+        }
+	}
+
+	public void onRequestPermissionResult(int requestCode, String[] permissions,
+										  int[] grantResults) throws JSONException
+	{
+		PluginResult result;
+		//This is important if we're using Cordova without using Cordova, but we have the geolocation plugin installed
+		if(callbackContext != null) {
+			for (int r : grantResults) {
+				if (r == PackageManager.PERMISSION_DENIED) {
+					result = new PluginResult(PluginResult.Status.ILLEGAL_ACCESS_EXCEPTION);
+					callbackContext.sendPluginResult(result);
+					return;
+				}
+			}
+
+			if(requestCode == REQUEST_CODE_GET_PICTURES) {
+				getPictures();
+			}
+		}
+	}
+
+	public boolean hasPermisssion() {
+		for(String p : permissions)
+		{
+			if(!PermissionHelper.hasPermission(this, p))
+			{
+				return false;
+			}
+		}
 		return true;
 	}
 
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
-		super.onActivityResult(requestCode, resultCode, data);
-		Context context=this.cordova.getActivity().getApplicationContext();
+		Context context = this.cordova.getActivity().getApplicationContext();
 
 		ArrayList<String> fileNames = new ArrayList<String>();
 		if (resultCode == -1) {
@@ -76,14 +123,12 @@ public class MediaPicker extends CordovaPlugin {
 
 				fileNames.add(outputFile.getAbsolutePath());
 			}
-
-			JSONArray res = new JSONArray(fileNames);
-			this.callbackContext.success(res);
-			return;
 		}
 
 		JSONArray res = new JSONArray(fileNames);
 		this.callbackContext.success(res);
+
+		super.onActivityResult(requestCode, resultCode, data);
 	}
 
 	private File getWritableFile(String ext) {
