@@ -74,7 +74,6 @@ public class MediaPicker extends CordovaPlugin {
 										  int[] grantResults) throws JSONException
 	{
 		PluginResult result;
-		//This is important if we're using Cordova without using Cordova, but we have the geolocation plugin installed
 		if(callbackContext != null) {
 			for (int r : grantResults) {
 				if (r == PackageManager.PERMISSION_DENIED) {
