@@ -40,7 +40,7 @@ public class MediaPicker extends CordovaPlugin {
 
 	private int REQUEST_CODE_GET_PICTURES = 1000;
 
-	String [] permissions = {Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.CAMERA};
+	String [] permissions = {Manifest.permission.WRITE_EXTERNAL_STORAGE};
 
 	public boolean execute(String action, final JSONArray args, final CallbackContext callbackContext) throws JSONException {
 		this.callbackContext = callbackContext;
