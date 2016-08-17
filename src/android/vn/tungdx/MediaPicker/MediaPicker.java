@@ -110,7 +110,7 @@ public class MediaPicker extends CordovaPlugin {
 
 			for (int i = 0; i < mediaSelectedList.size(); i++) {
 				File inputFile = new File(mediaSelectedList.get(i).getPathOrigin(context).toString());
-				String ext = inputFile.getAbsolutePath().substring(inputFile.getAbsolutePath().lastIndexOf("."));
+				String ext = inputFile.getAbsolutePath().substring(inputFile.getAbsolutePath().lastIndexOf(".") + 1);
 				File outputFile = getWritableFile(ext);
 
 				try {
@@ -149,15 +149,17 @@ public class MediaPicker extends CordovaPlugin {
 	public void copyFile(File src, File dst) throws IOException {
 		InputStream in = new FileInputStream(src);
 		OutputStream out = new FileOutputStream(dst);
-
-		// Transfer bytes from in to out
-		byte[] buf = new byte[1024];
-		int len;
-		while ((len = in.read(buf)) > 0) {
-			out.write(buf, 0, len);
+		try {
+			// Transfer bytes from in to out
+			byte[] buf = new byte[1024];
+			int len;
+			while ((len = in.read(buf)) > 0) {
+				out.write(buf, 0, len);
+			}
+		} finally {
+			in.close();
+			out.flush();
+			out.close();
 		}
-		in.close();
-		out.flush();
-		out.close();
 	}
 }
