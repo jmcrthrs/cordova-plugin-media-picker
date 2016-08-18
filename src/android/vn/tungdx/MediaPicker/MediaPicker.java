@@ -156,9 +156,9 @@ public class MediaPicker extends CordovaPlugin {
 			while ((len = in.read(buf)) > 0) {
 				out.write(buf, 0, len);
 			}
+			out.flush();
 		} finally {
 			in.close();
-			out.flush();
 			out.close();
 		}
 	}
