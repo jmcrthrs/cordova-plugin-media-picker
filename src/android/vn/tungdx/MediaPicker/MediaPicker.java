@@ -131,25 +131,27 @@ public class MediaPicker extends CordovaPlugin {
 		super.onActivityResult(requestCode, resultCode, data);
 	}
 
-	private File getWritableFile(String ext)
+	private File getWritableFile(String ext) 
 	{
-	        int i = 1;
-	        String state = Environment.getExternalStorageState();
-	        File dataDirectory = Environment.MEDIA_MOUNTED.equals(state)
-	            ? cordova.getActivity().getApplicationContext().getExternalFilesDir(null)
-	            : cordova.getActivity().getApplicationContext().getFilesDir();
-	
-	        // Create the data directory if it doesn't exist
-	        dataDirectory.mkdirs();
-	        String dataPath = dataDirectory.getAbsolutePath();
-	        File file;
-	        do {
-	            file = new File(dataPath + String.format("/capture_%05d." + ext, i));
-	            i++;
-	        } while (file.exists());
+        int i = 1;
+        File dataDirectory = cordova.getActivity().getApplicationContext().getFilesDir();
 
-        	return file;
-	}
+         //hack for galaxy camera 2.
+         if (Build.MODEL.equals("EK-GC200") && Build.MANUFACTURER.equals("samsung") && new File("/storage/extSdCard/").canRead()) {
+             dataDirectory = new File("/storage/extSdCard/.com.buzzcard.brandingtool/");
+         }
+
+        // Create the data directory if it doesn't exist
+        dataDirectory.mkdirs();
+        String dataPath = dataDirectory.getAbsolutePath();
+        File file;
+        do {
+            file = new File(dataPath + String.format("/capture_%05d." + ext, i));
+            i++;
+        } while (file.exists());
+
+        return file;
+     }
 
 	public void copyFile(File src, File dst) throws IOException {
 		InputStream in = new FileInputStream(src);
