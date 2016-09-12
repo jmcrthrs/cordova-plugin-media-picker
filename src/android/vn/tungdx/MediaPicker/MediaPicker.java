@@ -103,32 +103,39 @@ public class MediaPicker extends CordovaPlugin {
 		return true;
 	}
 
-	public void onActivityResult(int requestCode, int resultCode, Intent data) {
-		Context context = this.cordova.getActivity().getApplicationContext();
+	public void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
+		final CallbackContext callbackContext = this.callbackContext;
+		final Context context = this.cordova.getActivity().getApplicationContext();
+		new Thread(new Runnable() {
+			public void run() {
+				ArrayList<String> fileNames = new ArrayList<String>();
+				if (resultCode == -1)
 
-		ArrayList<String> fileNames = new ArrayList<String>();
-		if (resultCode == -1) {
-			List<MediaItem> mediaSelectedList = MediaPickerActivity
-					.getMediaItemSelected(data);
+				{
+					List<MediaItem> mediaSelectedList = MediaPickerActivity
+							.getMediaItemSelected(data);
 
-			for (int i = 0; i < mediaSelectedList.size(); i++) {
-				File inputFile = new File(mediaSelectedList.get(i).getPathOrigin(context).toString());
-				String ext = inputFile.getAbsolutePath().substring(inputFile.getAbsolutePath().lastIndexOf(".") + 1);
-				File outputFile = getWritableFile(ext);
+					for (int i = 0; i < mediaSelectedList.size(); i++) {
+						File inputFile = new File(mediaSelectedList.get(i).getPathOrigin(context).toString());
+						String ext = inputFile.getAbsolutePath().substring(inputFile.getAbsolutePath().lastIndexOf(".") + 1);
+						File outputFile = getWritableFile(ext);
 
-				try {
-					copyFile(inputFile, outputFile);
-				} catch (IOException exception) {
-					this.callbackContext.error(exception.getMessage());
-					return;
+						try {
+							copyFile(inputFile, outputFile);
+						} catch (IOException exception) {
+							callbackContext.error(exception.getMessage());
+							return;
+						}
+
+						fileNames.add(outputFile.getAbsolutePath());
+					}
 				}
 
-				fileNames.add(outputFile.getAbsolutePath());
+				JSONArray res = new JSONArray(fileNames);
+				callbackContext.success(res);
 			}
-		}
+		}).start();
 
-		JSONArray res = new JSONArray(fileNames);
-		this.callbackContext.success(res);
 
 		super.onActivityResult(requestCode, resultCode, data);
 	}
