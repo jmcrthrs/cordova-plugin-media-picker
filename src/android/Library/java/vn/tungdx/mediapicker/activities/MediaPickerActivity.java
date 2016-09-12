@@ -296,6 +296,11 @@ public class MediaPickerActivity extends AppCompatActivity implements
         } else {
             mMediaSwitcher.setVisible(false);
         }
+
+        //always hide capture buttons
+        mPhoto.setVisible(false);
+        mVideo.setVisible(false);
+        /*
         if (mMediaOptions.canSelectPhoto()) {
             mPhoto.setVisible(true);
         } else {
@@ -305,7 +310,7 @@ public class MediaPickerActivity extends AppCompatActivity implements
             mVideo.setVisible(true);
         } else {
             mVideo.setVisible(false);
-        }
+        }*/
     }
 
     private void syncIconMenu(int mediaType) {
