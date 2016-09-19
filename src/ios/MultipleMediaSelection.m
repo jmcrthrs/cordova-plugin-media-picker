@@ -17,45 +17,64 @@
 @implementation MultipleMediaSelection
 @synthesize callbackId;
 
+
 - (void) getPictures:(CDVInvokedUrlCommand *)command {
-    NSDictionary *options = [command.arguments objectAtIndex: 0];
+    self.callbackId = command.callbackId;
+
     [self.commandDelegate runInBackground:^{
-        NSInteger maxImages = [options[@"maxImages"] integerValue];
-        NSInteger minImages = [options[@"minImages"] integerValue];
-        BOOL sharedAlbums = [options[@"sharedAlbums"] boolValue] ?: false;
-        NSString *mediaType = (NSString *)options[@"mediaType"];
-        
-        // Create the an album controller and image picker
-        QBImagePickerController *imagePicker = [[QBImagePickerController alloc] init];
-        imagePicker.allowsMultipleSelection = (maxImages >= 2);
-        imagePicker.showsNumberOfSelectedAssets = YES;
-        imagePicker.maximumNumberOfSelection = maxImages;
-        imagePicker.minimumNumberOfSelection = minImages;
-        
-        NSMutableArray *collections = [imagePicker.assetCollectionSubtypes mutableCopy];
-        if (sharedAlbums) {
-            [collections addObject:@(PHAssetCollectionSubtypeAlbumCloudShared)];
-        }
-        
-        if ([mediaType isEqualToString:@"image"]) {
-            imagePicker.mediaType = QBImagePickerMediaTypeImage;
-            [collections removeObject:@(PHAssetCollectionSubtypeSmartAlbumVideos)];
-        } else if ([mediaType isEqualToString:@"video"]) {
-            imagePicker.mediaType = QBImagePickerMediaTypeVideo;
-        } else {
-            imagePicker.mediaType = QBImagePickerMediaTypeAny;
-        }
-        
-        imagePicker.assetCollectionSubtypes = collections;
-        
-        imagePicker.delegate = self;
-        self.callbackId = command.callbackId;
-        
-        // Display the picker in the main thread.
-        __weak MultipleMediaSelection* weakSelf = self;
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [weakSelf.viewController presentViewController:imagePicker animated:YES completion:nil];
-        });
+        [PHPhotoLibrary requestAuthorization:^(PHAuthorizationStatus status) {
+            switch (status) {
+                case PHAuthorizationStatusAuthorized:
+                {
+                    NSDictionary *options = [command.arguments objectAtIndex: 0];
+
+                    NSInteger maxImages = [options[@"maxImages"] integerValue];
+                    NSInteger minImages = [options[@"minImages"] integerValue];
+                    BOOL sharedAlbums = [options[@"sharedAlbums"] boolValue] ?: false;
+                    NSString *mediaType = (NSString *)options[@"mediaType"];
+                    
+                    // Create the an album controller and image picker
+                    QBImagePickerController *imagePicker = [[QBImagePickerController alloc] init];
+                    imagePicker.allowsMultipleSelection = (maxImages >= 2);
+                    imagePicker.showsNumberOfSelectedAssets = YES;
+                    imagePicker.maximumNumberOfSelection = maxImages;
+                    imagePicker.minimumNumberOfSelection = minImages;
+                    
+                    NSMutableArray *collections = [imagePicker.assetCollectionSubtypes mutableCopy];
+                    if (sharedAlbums) {
+                        [collections addObject:@(PHAssetCollectionSubtypeAlbumCloudShared)];
+                    }
+                    
+                    if ([mediaType isEqualToString:@"image"]) {
+                        imagePicker.mediaType = QBImagePickerMediaTypeImage;
+                        [collections removeObject:@(PHAssetCollectionSubtypeSmartAlbumVideos)];
+                    } else if ([mediaType isEqualToString:@"video"]) {
+                        imagePicker.mediaType = QBImagePickerMediaTypeVideo;
+                    } else {
+                        imagePicker.mediaType = QBImagePickerMediaTypeAny;
+                    }
+                    
+                    imagePicker.assetCollectionSubtypes = collections;
+                    imagePicker.delegate = self;
+                    
+                    // Display the picker in the main thread.
+                    __weak MultipleMediaSelection* weakSelf = self;
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        [weakSelf.viewController presentViewController:imagePicker animated:YES completion:nil];
+                    });
+
+                    break;
+                }
+                case PHAuthorizationStatusRestricted:
+                case PHAuthorizationStatusDenied:
+                {
+                    CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"Please give this app permission to access your photo library in your phone settings!"];
+                    [self.commandDelegate sendPluginResult:pluginResult callbackId:self.callbackId];
+                }
+                default:
+                    break;
+            }
+        }];
     }];
 }
 
