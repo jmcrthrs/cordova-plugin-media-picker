@@ -36,7 +36,7 @@
                     // Create the an album controller and image picker
                     QBImagePickerController *imagePicker = [[QBImagePickerController alloc] init];
                     imagePicker.allowsMultipleSelection = (maxImages >= 2);
-                    imagePicker.showsNumberOfSelectedAssets = YES;
+                    imagePicker.showsNumberOfSelectedItems = YES;
                     imagePicker.maximumNumberOfSelection = maxImages;
                     imagePicker.minimumNumberOfSelection = minImages;
                     
@@ -96,7 +96,7 @@
 }
 
 #pragma mark - QBImagePickerControllerDelegate
-- (void)qb_imagePickerController:(QBImagePickerController *)imagePickerController didFinishPickingAssets:(NSArray *)assets
+- (void)qb_imagePickerController:(QBImagePickerController *)imagePickerController didFinishPickingItems:(NSArray *)assets
 {
     NSLog(@"Selected assets:");
     NSLog(@"%@", assets);

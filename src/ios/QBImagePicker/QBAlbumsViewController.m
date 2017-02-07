@@ -16,15 +16,12 @@
 #import "QBImagePickerController.h"
 #import "QBAssetsViewController.h"
 
+NSInteger const QBPHAssetCollectionSubtypeRecentlyDeleted = 1000000201;
+NSString * const COLLECTION_TITLE_RECENTLY_DELETED = @"Recently Deleted";
+
 static CGSize CGSizeScale(CGSize size, CGFloat scale) {
     return CGSizeMake(size.width * scale, size.height * scale);
 }
-
-@interface QBImagePickerController (Private)
-
-@property (nonatomic, strong) NSBundle *assetBundle;
-
-@end
 
 @interface QBAlbumsViewController () <PHPhotoLibraryChangeObserver>
 
@@ -86,6 +83,13 @@ static CGSize CGSizeScale(CGSize size, CGFloat scale) {
 {
     QBAssetsViewController *assetsViewController = segue.destinationViewController;
     assetsViewController.imagePickerController = self.imagePickerController;
+	
+	PHAssetCollection *collection = self.assetCollections[self.tableView.indexPathForSelectedRow.row];
+	
+	if (collection.assetCollectionSubtype == QBPHAssetCollectionSubtypeRecentlyDeleted ||
+		[collection.localizedTitle isEqualToString:COLLECTION_TITLE_RECENTLY_DELETED])
+		assetsViewController.disableScrollToBottom = YES;
+
     assetsViewController.assetCollection = self.assetCollections[self.tableView.indexPathForSelectedRow.row];
 }
 
@@ -101,9 +105,9 @@ static CGSize CGSizeScale(CGSize size, CGFloat scale) {
 
 - (IBAction)done:(id)sender
 {
-    if ([self.imagePickerController.delegate respondsToSelector:@selector(qb_imagePickerController:didFinishPickingAssets:)]) {
+    if ([self.imagePickerController.delegate respondsToSelector:@selector(qb_imagePickerController:didFinishPickingItems:)]) {
         [self.imagePickerController.delegate qb_imagePickerController:self.imagePickerController
-                                               didFinishPickingAssets:self.imagePickerController.selectedAssets.array];
+                                               didFinishPickingItems:self.imagePickerController.selectedItems.array];
     }
 }
 
@@ -128,18 +132,18 @@ static CGSize CGSizeScale(CGSize size, CGFloat scale) {
 
 - (void)updateSelectionInfo
 {
-    NSMutableOrderedSet *selectedAssets = self.imagePickerController.selectedAssets;
+    NSMutableOrderedSet *selectedItems = self.imagePickerController.selectedItems;
     
-    if (selectedAssets.count > 0) {
+    if (selectedItems.count > 0) {
         NSBundle *bundle = self.imagePickerController.assetBundle;
         NSString *format;
-        if (selectedAssets.count > 1) {
+        if (selectedItems.count > 1) {
             format = NSLocalizedStringFromTableInBundle(@"assets.toolbar.items-selected", @"QBImagePicker", bundle, nil);
         } else {
             format = NSLocalizedStringFromTableInBundle(@"assets.toolbar.item-selected", @"QBImagePicker", bundle, nil);
         }
         
-        NSString *title = [NSString stringWithFormat:format, selectedAssets.count];
+        NSString *title = [NSString stringWithFormat:format, selectedItems.count];
         [(UIBarButtonItem *)self.toolbarItems[1] setTitle:title];
     } else {
         [(UIBarButtonItem *)self.toolbarItems[1] setTitle:@""];
@@ -170,8 +174,35 @@ static CGSize CGSizeScale(CGSize size, CGFloat scale) {
             }
         }];
     }
-    
+	
     NSMutableArray *assetCollections = [NSMutableArray array];
+
+    // Fetch "Recently Deleted" album
+    if (self.imagePickerController.includeRecentlyDeletedAlbum)
+    {
+        __block PHAssetCollection *recentlyDeletedCollection = nil;
+        PHFetchResult *fetchResult = [PHAssetCollection fetchAssetCollectionsWithType:PHAssetCollectionTypeSmartAlbum
+                                                                              subtype:PHAssetCollectionSubtypeAlbumRegular options:nil];
+        [fetchResult enumerateObjectsUsingBlock:^(PHAssetCollection *assetCollection, NSUInteger index, BOOL *stop) {
+            if ([assetCollection.localizedTitle isEqualToString:COLLECTION_TITLE_RECENTLY_DELETED])
+                recentlyDeletedCollection = assetCollection;
+        }];
+
+        if (recentlyDeletedCollection == nil)
+        {
+            fetchResult = [PHAssetCollection fetchAssetCollectionsWithType:PHAssetCollectionTypeSmartAlbum
+                                                                   subtype:QBPHAssetCollectionSubtypeRecentlyDeleted options:nil];
+            if (fetchResult.count == 1
+                && [fetchResult.firstObject isKindOfClass:PHAssetCollection.class]
+                && ((PHAssetCollection *)fetchResult.firstObject).assetCollectionSubtype == QBPHAssetCollectionSubtypeRecentlyDeleted)
+            {
+                recentlyDeletedCollection = (PHAssetCollection *)fetchResult.firstObject;
+            }
+        }
+
+        if (recentlyDeletedCollection != nil)
+            [assetCollections addObject:recentlyDeletedCollection];
+    }
 
     // Fetch smart albums
     for (NSNumber *assetCollectionSubtype in assetCollectionSubtypes) {
@@ -186,8 +217,51 @@ static CGSize CGSizeScale(CGSize size, CGFloat scale) {
     [userAlbums enumerateObjectsUsingBlock:^(PHAssetCollection *assetCollection, NSUInteger index, BOOL *stop) {
         [assetCollections addObject:assetCollection];
     }];
-    
-    self.assetCollections = assetCollections;
+
+    self.assetCollections = [assetCollections filteredArrayUsingPredicate:[NSPredicate predicateWithBlock:^BOOL(PHAssetCollection * _Nonnull assetCollection, NSDictionary<NSString *,id> * _Nullable bindings) {
+        
+        if (!self.imagePickerController.excludeEmptyAlbums)
+        {
+            return YES;
+        }
+        
+        PHFetchOptions *options = [PHFetchOptions new];
+        NSPredicate *mediaTypePredicate;
+        switch (self.imagePickerController.mediaType) {
+            case QBImagePickerMediaTypeImage:
+                mediaTypePredicate = [NSPredicate predicateWithFormat:@"mediaType == %ld", PHAssetMediaTypeImage];
+                break;
+                
+            case QBImagePickerMediaTypeVideo:
+                mediaTypePredicate = [NSPredicate predicateWithFormat:@"mediaType == %ld", PHAssetMediaTypeVideo];
+                break;
+                
+            default:
+                break;
+        }
+        
+        NSPredicate *mediaSubTypePredicate;
+        if (self.imagePickerController.assetMediaSubtypes)
+        {
+            mediaSubTypePredicate = [NSPredicate predicateWithFormat:@"mediaSubtype in %@ ", self.imagePickerController.assetMediaSubtypes];
+        }
+        NSMutableArray *predicates = [@[] mutableCopy];
+        if (mediaTypePredicate)
+        {
+            [predicates addObject:mediaTypePredicate];
+        }
+        if (mediaSubTypePredicate)
+        {
+            [predicates addObject:mediaSubTypePredicate];
+        }
+        if (predicates.count > 0)
+        {
+            NSCompoundPredicate *preidcate = [NSCompoundPredicate andPredicateWithSubpredicates:predicates];
+            options.predicate = preidcate;
+        }
+        PHFetchResult *fetchResult = [PHAsset fetchAssetsInAssetCollection:assetCollection options:options];
+        return fetchResult.count > 0;
+    }]];
 }
 
 - (UIImage *)placeholderImageWithSize:(CGSize)size
@@ -240,7 +314,7 @@ static CGSize CGSizeScale(CGSize size, CGFloat scale) {
 
 - (BOOL)isMinimumSelectionLimitFulfilled
 {
-    return (self.imagePickerController.minimumNumberOfSelection <= self.imagePickerController.selectedAssets.count);
+    return (self.imagePickerController.minimumNumberOfSelection <= self.imagePickerController.selectedItems.count);
 }
 
 - (BOOL)isMaximumSelectionLimitReached
@@ -248,7 +322,7 @@ static CGSize CGSizeScale(CGSize size, CGFloat scale) {
     NSUInteger minimumNumberOfSelection = MAX(1, self.imagePickerController.minimumNumberOfSelection);
     
     if (minimumNumberOfSelection <= self.imagePickerController.maximumNumberOfSelection) {
-        return (self.imagePickerController.maximumNumberOfSelection <= self.imagePickerController.selectedAssets.count);
+        return (self.imagePickerController.maximumNumberOfSelection <= self.imagePickerController.selectedItems.count);
     }
     
     return NO;
@@ -272,6 +346,11 @@ static CGSize CGSizeScale(CGSize size, CGFloat scale) {
     return self.assetCollections.count;
 }
 
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    [tableView deselectRowAtIndexPath:indexPath animated:YES];
+}
+
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
     QBAlbumCell *cell = [tableView dequeueReusableCellWithIdentifier:@"AlbumCell" forIndexPath:indexPath];
@@ -282,19 +361,40 @@ static CGSize CGSizeScale(CGSize size, CGFloat scale) {
     PHAssetCollection *assetCollection = self.assetCollections[indexPath.row];
     
     PHFetchOptions *options = [PHFetchOptions new];
-    
+    NSPredicate *mediaTypePredicate;
     switch (self.imagePickerController.mediaType) {
         case QBImagePickerMediaTypeImage:
-            options.predicate = [NSPredicate predicateWithFormat:@"mediaType == %ld", PHAssetMediaTypeImage];
+            mediaTypePredicate = [NSPredicate predicateWithFormat:@"mediaType == %ld", PHAssetMediaTypeImage];
             break;
             
         case QBImagePickerMediaTypeVideo:
-            options.predicate = [NSPredicate predicateWithFormat:@"mediaType == %ld", PHAssetMediaTypeVideo];
+            mediaTypePredicate = [NSPredicate predicateWithFormat:@"mediaType == %ld", PHAssetMediaTypeVideo];
             break;
             
         default:
             break;
     }
+    
+    NSPredicate *mediaSubTtypePredicate;
+    if (self.imagePickerController.assetMediaSubtypes)
+    {
+        mediaSubTtypePredicate = [NSPredicate predicateWithFormat:@"mediaSubtype in %@ ", self.imagePickerController.assetMediaSubtypes];
+    }
+    NSMutableArray *predicates = [@[] mutableCopy];
+    if (mediaTypePredicate)
+    {
+        [predicates addObject:mediaTypePredicate];
+    }
+    if (mediaSubTtypePredicate)
+    {
+        [predicates addObject:mediaSubTtypePredicate];
+    }
+    if (predicates.count > 0)
+    {
+        NSCompoundPredicate *predicate = [NSCompoundPredicate andPredicateWithSubpredicates:predicates];
+        options.predicate = predicate;
+    }
+
     
     PHFetchResult *fetchResult = [PHAsset fetchAssetsInAssetCollection:assetCollection options:options];
     PHImageManager *imageManager = [PHImageManager defaultManager];

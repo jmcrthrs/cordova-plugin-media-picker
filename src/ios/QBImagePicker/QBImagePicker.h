@@ -14,5 +14,6 @@ FOUNDATION_EXPORT double QBImagePickerVersionNumber;
 //! Project version string for QBImagePicker.
 FOUNDATION_EXPORT const unsigned char QBImagePickerVersionString[];
 
-// In this header, you should import all the public headers of your framework using statements like #import <QBImagePicker/PublicHeader.h>
-#import <QBImagePicker/QBImagePickerController.h>
+// In this header, you should import all the public headers of your framework using statements like #import <OHQBImagePicker/PublicHeader.h>
+#import <OHQBImagePicker/QBImagePickerController.h>
+#import <OHQBImagePicker/QBItemViewController.h>

@@ -26,6 +26,8 @@
         <source-file src="src/ios/QBImagePicker/QBAssetCell.m" />
         <header-file src="src/ios/QBImagePicker/QBCheckmarkView.h" />
         <source-file src="src/ios/QBImagePicker/QBCheckmarkView.m" />
+        <header-file src="src/ios/QBImagePicker/QBItemCell.h" />
+        <source-file src="src/ios/QBImagePicker/QBItemCell.m" />
         <header-file src="src/ios/QBImagePicker/QBVideoIconView.h" />
         <source-file src="src/ios/QBImagePicker/QBVideoIconView.m" />
         <header-file src="src/ios/QBImagePicker/QBSlomoIconView.h" />
@@ -39,9 +41,19 @@
         <source-file src="src/ios/QBImagePicker/QBAlbumsViewController.m" />
         <header-file src="src/ios/QBImagePicker/QBAssetsViewController.h" />
         <source-file src="src/ios/QBImagePicker/QBAssetsViewController.m" />
+        <header-file src="src/ios/QBImagePicker/QBItemViewController.h" />
+        <source-file src="src/ios/QBImagePicker/QBItemViewController.m" />
 
+<!--        <resource-file src="src/ios/QBImagePicker/de.lproj/QBImagePicker.strings" />-->
         <resource-file src="src/ios/QBImagePicker/en.lproj/QBImagePicker.strings" />
+        <!--<resource-file src="src/ios/QBImagePicker/es.lproj/QBImagePicker.strings" />
+        <resource-file src="src/ios/QBImagePicker/ja.lproj/QBImagePicker.strings" />
+        <resource-file src="src/ios/QBImagePicker/pl.lproj/QBImagePicker.strings" />
+        <resource-file src="src/ios/QBImagePicker/zh-Hans.lproj/QBImagePicker.strings" />-->
+
         <resource-file src="src/ios/QBImagePicker/QBImagePicker.storyboard" />
+        <resource-file src="src/ios/QBImagePicker/QBItemCell.xib" />
+
 
         <framework src="QuartzCore.framework" />
         <framework src="Photos.framework" />
