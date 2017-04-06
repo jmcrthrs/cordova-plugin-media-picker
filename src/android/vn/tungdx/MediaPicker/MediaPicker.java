@@ -49,8 +49,7 @@ public class MediaPicker extends CordovaPlugin {
 		this.callbackContext = callbackContext;
 		this.params = args.getJSONObject(0);
 		if (action.equals("getPictures")) {
-
-			if(hasPermisssion()) {
+			if (hasPermisssion()) {
 				getPictures();
 			} else {
 				PermissionHelper.requestPermissions(this, REQUEST_CODE_GET_PICTURES, permissions);
@@ -61,9 +60,29 @@ public class MediaPicker extends CordovaPlugin {
 		return false;
 	}
 
-	private void getPictures() {
+	// Name getPictures to match cordova-plugin-camera.
+	private void getPictures() throws JSONException {
+		String mediaType = this.params.getString("mediaType");
+		Boolean includeImages = true;
+		Boolean includeVideos = true;
+
+		if (mediaType != null) {
+			includeImages = mediaType.equals("image");
+			includeVideos = mediaType.equals("video");
+		}
+
 		MediaOptions.Builder builder = new MediaOptions.Builder();
-		MediaOptions options = builder.canSelectBothPhotoVideo().canSelectMultiVideo(true).canSelectMultiPhoto(true).build();
+		builder = builder.canSelectMultiPhoto(true).canSelectMultiVideo(true);
+
+		if (includeImages && includeVideos) {
+			builder = builder.canSelectBothPhotoVideo();
+		} else if (includeImages) {
+			builder = builder.selectPhoto();
+		} else if (includeVideos) {
+			builder = builder.selectVideo();
+		}
+
+		MediaOptions options = builder.build();
 
 		Context context = this.cordova.getActivity().getApplicationContext();
 		Intent intent = new Intent(context, MediaPickerActivity.class);
