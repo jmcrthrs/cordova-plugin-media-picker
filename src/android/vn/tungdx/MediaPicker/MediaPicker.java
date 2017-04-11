@@ -32,7 +32,7 @@ import android.os.Build;
 
 
 import vn.tungdx.mediapicker.activities.MediaPickerActivity;
-import com.buzzcard.brandingtool.R;
+import com.busivid.one.R;
 
 public class MediaPicker extends CordovaPlugin {
 	public static String TAG = "MediaPicker";
@@ -43,7 +43,7 @@ public class MediaPicker extends CordovaPlugin {
 
 	private int REQUEST_CODE_GET_PICTURES = 1000;
 
-	String [] permissions = {Manifest.permission.WRITE_EXTERNAL_STORAGE};
+	String[] permissions = {Manifest.permission.WRITE_EXTERNAL_STORAGE};
 
 	public boolean execute(String action, final JSONArray args, final CallbackContext callbackContext) throws JSONException {
 		this.callbackContext = callbackContext;
@@ -88,15 +88,14 @@ public class MediaPicker extends CordovaPlugin {
 		Intent intent = new Intent(context, MediaPickerActivity.class);
 		intent.putExtra(EXTRA_MEDIA_OPTIONS, options);
 		if (this.cordova != null) {
-            this.cordova.startActivityForResult((CordovaPlugin) this, intent, 0);
-        }
+			this.cordova.startActivityForResult((CordovaPlugin) this, intent, 0);
+		}
 	}
 
 	public void onRequestPermissionResult(int requestCode, String[] permissions,
-										  int[] grantResults) throws JSONException
-	{
+										  int[] grantResults) throws JSONException {
 		PluginResult result;
-		if(callbackContext != null) {
+		if (callbackContext != null) {
 			for (int r : grantResults) {
 				if (r == PackageManager.PERMISSION_DENIED) {
 					result = new PluginResult(PluginResult.Status.ILLEGAL_ACCESS_EXCEPTION);
@@ -105,17 +104,15 @@ public class MediaPicker extends CordovaPlugin {
 				}
 			}
 
-			if(requestCode == REQUEST_CODE_GET_PICTURES) {
+			if (requestCode == REQUEST_CODE_GET_PICTURES) {
 				getPictures();
 			}
 		}
 	}
 
 	public boolean hasPermisssion() {
-		for(String p : permissions)
-		{
-			if(!PermissionHelper.hasPermission(this, p))
-			{
+		for (String p : permissions) {
+			if (!PermissionHelper.hasPermission(this, p)) {
 				return false;
 			}
 		}
@@ -128,30 +125,37 @@ public class MediaPicker extends CordovaPlugin {
 		new Thread(new Runnable() {
 			public void run() {
 				ArrayList<String> fileNames = new ArrayList<String>();
-				if (resultCode == -1)
 
-				{
-					List<MediaItem> mediaSelectedList = MediaPickerActivity
-							.getMediaItemSelected(data);
+				switch (resultCode) {
+					case 0:
+						callbackContext.error("Cancelled");
+						break;
+					case -1:
+						List<MediaItem> mediaSelectedList = MediaPickerActivity
+								.getMediaItemSelected(data);
 
-					for (int i = 0; i < mediaSelectedList.size(); i++) {
-						File inputFile = new File(mediaSelectedList.get(i).getPathOrigin(context).toString());
-						String ext = inputFile.getAbsolutePath().substring(inputFile.getAbsolutePath().lastIndexOf(".") + 1);
-						File outputFile = getWritableFile(ext);
+						for (int i = 0; i < mediaSelectedList.size(); i++) {
+							File inputFile = new File(mediaSelectedList.get(i).getPathOrigin(context).toString());
+							String ext = inputFile.getAbsolutePath().substring(inputFile.getAbsolutePath().lastIndexOf(".") + 1);
+							File outputFile = getWritableFile(ext);
 
-						try {
-							copyFile(inputFile, outputFile);
-						} catch (IOException exception) {
-							callbackContext.error(exception.getMessage());
-							return;
+							try {
+								copyFile(inputFile, outputFile);
+							} catch (IOException exception) {
+								callbackContext.error(exception.getMessage());
+								return;
+							}
+
+							fileNames.add(outputFile.getAbsolutePath());
 						}
 
-						fileNames.add(outputFile.getAbsolutePath());
-					}
+						JSONArray res = new JSONArray(fileNames);
+						callbackContext.success(res);
+						break;
+					default:
+						callbackContext.error(resultCode);
+						break;
 				}
-
-				JSONArray res = new JSONArray(fileNames);
-				callbackContext.success(res);
 			}
 		}).start();
 
@@ -159,29 +163,28 @@ public class MediaPicker extends CordovaPlugin {
 		super.onActivityResult(requestCode, resultCode, data);
 	}
 
-	private File getWritableFile(String ext) 
-	{
-        int i = 1;
-        File dataDirectory = cordova.getActivity().getApplicationContext().getFilesDir();
+	private File getWritableFile(String ext) {
+		int i = 1;
+		File dataDirectory = cordova.getActivity().getApplicationContext().getFilesDir();
 
-         //hack for galaxy camera 2.
-         if (Build.MODEL.equals("EK-GC200") && Build.MANUFACTURER.equals("samsung") && new File("/storage/extSdCard/").canRead()) {
-             dataDirectory = new File("/storage/extSdCard/.com.buzzcard.brandingtool/");
-         }
+		//hack for galaxy camera 2.
+		if (Build.MODEL.equals("EK-GC200") && Build.MANUFACTURER.equals("samsung") && new File("/storage/extSdCard/").canRead()) {
+			dataDirectory = new File("/storage/extSdCard/.com.buzzcard.brandingtool/");
+		}
 
-        // Create the data directory if it doesn't exist
-        dataDirectory.mkdirs();
-        String dataPath = dataDirectory.getAbsolutePath();
-        File file;
-        do {
-            file = new File(dataPath + String.format("/capture_%05d." + ext, i));
-            i++;
-        } while (file.exists());
+		// Create the data directory if it doesn't exist
+		dataDirectory.mkdirs();
+		String dataPath = dataDirectory.getAbsolutePath();
+		File file;
+		do {
+			file = new File(dataPath + String.format("/capture_%05d." + ext, i));
+			i++;
+		} while (file.exists());
 
-        return file;
-     }
+		return file;
+	}
 
-	public void copyFile(File src, File dst) throws IOException {
+	private void copyFile(File src, File dst) throws IOException {
 		InputStream in = new FileInputStream(src);
 		OutputStream out = new FileOutputStream(dst);
 		try {
