@@ -11,28 +11,29 @@
 @interface MultipleMediaSelection ()
 
 @property (copy) NSString* callbackId;
+@property (copy) NSDictionary* options;
 
 @end
 
 @implementation MultipleMediaSelection
 @synthesize callbackId;
+@synthesize options;
 
 
 - (void) getPictures:(CDVInvokedUrlCommand *)command {
     self.callbackId = command.callbackId;
+    self.options = [command.arguments objectAtIndex: 0];
 
     [self.commandDelegate runInBackground:^{
         [PHPhotoLibrary requestAuthorization:^(PHAuthorizationStatus status) {
             switch (status) {
                 case PHAuthorizationStatusAuthorized:
                 {
-                    NSDictionary *options = [command.arguments objectAtIndex: 0];
+                    NSInteger maxImages = [self.options[@"maxImages"] integerValue];
+                    NSInteger minImages = [self.options[@"minImages"] integerValue];
+                    BOOL sharedAlbums = [self.options[@"sharedAlbums"] boolValue] ?: false;
+                    NSString *mediaType = (NSString *)self.options[@"mediaType"];
 
-                    NSInteger maxImages = [options[@"maxImages"] integerValue];
-                    NSInteger minImages = [options[@"minImages"] integerValue];
-                    BOOL sharedAlbums = [options[@"sharedAlbums"] boolValue] ?: false;
-                    NSString *mediaType = (NSString *)options[@"mediaType"];
-                    
                     // Create the an album controller and image picker
                     QBImagePickerController *imagePicker = [[QBImagePickerController alloc] init];
                     imagePicker.allowsMultipleSelection = (maxImages >= 2);
@@ -78,11 +79,18 @@
     }];
 }
 
-- (NSString*)getAssetFilePath:(NSString*)extension
+- (NSString*)getAssetFilePath:(NSString*)extension isTemporaryStorage:(BOOL)isTemporaryStorage
 {
-    NSArray* paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
-    NSString* docsPath = ([paths count] > 0) ? [paths objectAtIndex:0] : nil;
-    
+    NSString* docsPath;
+    if (isTemporaryStorage) {
+        NSArray* paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+        docsPath = ([paths count] > 0) ? [paths objectAtIndex:0] : nil;
+
+    } else {
+        docsPath = [NSTemporaryDirectory()stringByStandardizingPath];
+    }
+
+
     NSFileManager* fileMgr = [[NSFileManager alloc] init]; // recommended by Apple (vs [NSFileManager defaultManager]) to be threadsafe
     NSString* filePath;
     
@@ -103,13 +111,14 @@
     PHImageManager *manager = [PHImageManager defaultManager];
     PHImageRequestOptions *options = [[PHImageRequestOptions alloc] init];
     options.synchronous = YES;
-    
+    BOOL isTemporaryStorage = [self.options[@"isTemporaryStorage"] boolValue] ?: true;
+
     __block NSMutableArray *resultStrings = [[NSMutableArray alloc] init];
     
     for (PHAsset *asset in assets) {
         if (asset.mediaType == PHAssetMediaTypeImage) {
             [manager requestImageDataForAsset: asset options: options resultHandler:^(NSData *imageData, NSString *dataUTI, UIImageOrientation orientation, NSDictionary *info) {
-                NSString *filePath = [self getAssetFilePath:@"jpg"];
+                NSString *filePath = [self getAssetFilePath:@"jpg" isTemporaryStorage:isTemporaryStorage];
                 NSURL *fileURL = [NSURL fileURLWithPath:filePath isDirectory:NO];
                 [imageData writeToFile:filePath atomically:YES];
                 [resultStrings addObject:[fileURL absoluteString]];
@@ -123,7 +132,7 @@
             [manager requestAVAssetForVideo:asset options:nil resultHandler:^(AVAsset *videoAsset, AVAudioMix *audioMix, NSDictionary *info) {
                 if ([videoAsset isKindOfClass:[AVURLAsset class]])
                 {
-                    NSString *filePath = [self getAssetFilePath:@"mp4"];
+                    NSString *filePath = [self getAssetFilePath:@"mp4" isTemporaryStorage:isTemporaryStorage];
                     NSURL *fileURL = [NSURL fileURLWithPath:filePath isDirectory:NO];
                     
                     NSURL *inputURL = [(AVURLAsset*)videoAsset URL];
