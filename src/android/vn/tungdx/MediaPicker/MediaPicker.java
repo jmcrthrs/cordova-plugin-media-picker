@@ -122,6 +122,7 @@ public class MediaPicker extends CordovaPlugin {
 	public void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
 		final CallbackContext callbackContext = this.callbackContext;
 		final Context context = this.cordova.getActivity().getApplicationContext();
+		final JSONObject params = this.params;
 		new Thread(new Runnable() {
 			public void run() {
 				ArrayList<String> fileNames = new ArrayList<String>();
@@ -136,8 +137,14 @@ public class MediaPicker extends CordovaPlugin {
 
 						for (int i = 0; i < mediaSelectedList.size(); i++) {
 							File inputFile = new File(mediaSelectedList.get(i).getPathOrigin(context).toString());
+
+							Boolean isTemporaryFile = true;
+							try {
+								isTemporaryFile = !params.has("isTemporaryFile") || params.getBoolean("isTemporaryFile");
+							} catch (JSONException e) {}
+
 							String ext = inputFile.getAbsolutePath().substring(inputFile.getAbsolutePath().lastIndexOf(".") + 1);
-							File outputFile = getWritableFile(ext);
+							File outputFile = getWritableFile(ext, isTemporaryFile);
 
 							try {
 								copyFile(inputFile, outputFile);
@@ -163,18 +170,20 @@ public class MediaPicker extends CordovaPlugin {
 		super.onActivityResult(requestCode, resultCode, data);
 	}
 
-	private File getWritableFile(String ext) {
+	private File getWritableFile(String ext, Boolean isTemporaryPath) {
 		int i = 1;
-		File dataDirectory = cordova.getActivity().getApplicationContext().getFilesDir();
+		File storageDirectory = isTemporaryPath
+				? cordova.getActivity().getCacheDir()
+				: cordova.getActivity().getApplicationContext().getFilesDir();
 
 		//hack for galaxy camera 2.
 		if (Build.MODEL.equals("EK-GC200") && Build.MANUFACTURER.equals("samsung") && new File("/storage/extSdCard/").canRead()) {
-			dataDirectory = new File("/storage/extSdCard/.com.buzzcard.brandingtool/");
+			storageDirectory = new File("/storage/extSdCard/.com.buzzcard.brandingtool/");
 		}
 
-		// Create the data directory if it doesn't exist
-		dataDirectory.mkdirs();
-		String dataPath = dataDirectory.getAbsolutePath();
+		// Create the storage directory if it doesn't exist
+		storageDirectory.mkdirs();
+		String dataPath = storageDirectory.getAbsolutePath();
 		File file;
 		do {
 			file = new File(dataPath + String.format("/capture_%05d." + ext, i));
