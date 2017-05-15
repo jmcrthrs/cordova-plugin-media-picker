@@ -83,11 +83,10 @@
 {
     NSString* docsPath;
     if (isTemporaryStorage) {
+        docsPath = [NSTemporaryDirectory()stringByStandardizingPath];
+    } else {
         NSArray* paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
         docsPath = ([paths count] > 0) ? [paths objectAtIndex:0] : nil;
-
-    } else {
-        docsPath = [NSTemporaryDirectory()stringByStandardizingPath];
     }
 
 
