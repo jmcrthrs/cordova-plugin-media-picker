@@ -1,7 +1,5 @@
 {
-  "name": "cordova-plugin-multiple-media-selection",
-  "version": "1.0.0",
-  "description": "Thumbnail view of camera roll, allowing multiple items to be selected",
+  "author": "Busivid Team",
   "cordova": {
     "id": "cordova-plugin-multiple-media-selection",
     "platforms": [
@@ -9,17 +7,19 @@
       "ios"
     ]
   },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/buzzcard/cordova-plugin-multiple-media-selection"
-  },
+  "description": "Thumbnail view of camera roll, allowing multiple items to be selected",
   "keywords": [
-    "cordova",
+    "cordova",    
+    "cordova-android",
+    "cordova-ios",
     "ecosystem:cordova",
     "multiple media selction",
-    "cordova-android",
-    "cordova-ios"
   ],
-  "author": "Cory Thompson",
-  "license": "MIT"
+  "license": "MIT",
+  "name": "cordova-plugin-multiple-media-selection",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/busivid/cordova-plugin-multiple-media-selection"
+  },
+  "version": "1.0.0"
 }
