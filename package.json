@@ -13,7 +13,7 @@
     "cordova-android",
     "cordova-ios",
     "ecosystem:cordova",
-    "multiple media selction",
+    "multiple media selction"
   ],
   "license": "MIT",
   "name": "cordova-plugin-multiple-media-selection",
