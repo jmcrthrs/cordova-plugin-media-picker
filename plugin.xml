@@ -108,7 +108,7 @@
 
         <source-file src="src/android/Library/java/com/nostra13/universalimageloader/cache/disc/impl/ext/DiskLruCache.java" target-dir="src/com/nostra13" />
         <source-file src="src/android/Library/java/com/nostra13/universalimageloader/cache/disc/impl/ext/LruDiskCache.java" target-dir="src/com/nostra13" />
-        <source-file src="src/android/Library/java/com/nostra13/universalimageloader/cache/disc/impl/ext/StrictLinereader.java" target-dir="src/com/nostra13" />
+        <source-file src="src/android/Library/java/com/nostra13/universalimageloader/cache/disc/impl/ext/StrictLineReader.java" target-dir="src/com/nostra13" />
         <source-file src="src/android/Library/java/com/nostra13/universalimageloader/cache/disc/impl/ext/Util.java" target-dir="src/com/nostra13" />
 
         <source-file src="src/android/Library/java/com/nostra13/universalimageloader/cache/disc/impl/BaseDiskCache.java" target-dir="src/com/nostra13" />
