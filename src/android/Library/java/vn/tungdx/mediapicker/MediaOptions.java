@@ -42,6 +42,7 @@ public class MediaOptions implements Parcelable {
     private boolean canSelectMultiPhoto;
     private boolean canSelectMultiVideo;
     private boolean isCropped;
+    private int maxImages;
     private int maxVideoDuration;
     private int minVideoDuration;
     private boolean canSelectPhoto;
@@ -90,6 +91,10 @@ public class MediaOptions implements Parcelable {
         return isCropped;
     }
 
+    public int getMaxImages() {
+        return maxImages;
+    }
+
     /**
      *
      * @return in milliseconds.
@@ -126,6 +131,7 @@ public class MediaOptions implements Parcelable {
         this.canSelectMultiPhoto = builder.canSelectMultiPhoto;
         this.canSelectMultiVideo = builder.canSelectMultiVideo;
         this.isCropped = builder.isCropped;
+        this.maxImages = builder.maxImages;
         this.maxVideoDuration = builder.maxVideoDuration;
         this.minVideoDuration = builder.minVideoDuration;
         this.canSelectPhoto = builder.canSelectPhoto;
@@ -162,6 +168,7 @@ public class MediaOptions implements Parcelable {
         private boolean canSelectMultiPhoto = false;
         private boolean canSelectMultiVideo = false;
         private boolean isCropped = false;
+        private int maxImages;
         private int maxVideoDuration = Integer.MAX_VALUE;
         private int minVideoDuration = 0;
         private boolean canSelectPhoto = true;
@@ -292,6 +299,11 @@ public class MediaOptions implements Parcelable {
             return this;
         }
 
+        public Builder setMaxImages(int maxImages) {
+            this.maxImages = maxImages;
+            return this;
+        }
+
         /**
          * Set max video's duration. If set, can't select multiple videos. It's
          * override {@link #canSelectMultiVideo(boolean)} option.
@@ -410,6 +422,7 @@ public class MediaOptions implements Parcelable {
         dest.writeInt(isCropped ? 1 : 0);
         dest.writeInt(fixAspectRatio ? 1 : 0);
         dest.writeInt(showWarningVideoDuration ? 1 : 0);
+        dest.writeInt(this.maxImages);
         dest.writeInt(this.maxVideoDuration);
         dest.writeInt(this.minVideoDuration);
         dest.writeInt(aspectX);
@@ -427,6 +440,7 @@ public class MediaOptions implements Parcelable {
         isCropped = in.readInt() == 0 ? false : true;
         fixAspectRatio = in.readInt() == 0 ? false : true;
         showWarningVideoDuration = in.readInt() == 0 ? false : true;
+        this.maxImages = in.readInt();
         this.maxVideoDuration = in.readInt();
         this.minVideoDuration = in.readInt();
         aspectX = in.readInt();

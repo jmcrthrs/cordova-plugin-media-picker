@@ -71,6 +71,8 @@ public class MediaPicker extends CordovaPlugin {
 			includeVideos = mediaType.equals("video");
 		}
 
+		int maxImages = this.params.getInt("maxImages");
+
 		MediaOptions.Builder builder = new MediaOptions.Builder();
 		builder = builder.canSelectMultiPhoto(true).canSelectMultiVideo(true);
 
@@ -81,6 +83,8 @@ public class MediaPicker extends CordovaPlugin {
 		} else if (includeVideos) {
 			builder = builder.selectVideo();
 		}
+
+		builder.setMaxImages(maxImages);
 
 		MediaOptions options = builder.build();
 

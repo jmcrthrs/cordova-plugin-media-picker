@@ -228,6 +228,14 @@ public class MediaPickerFragment extends BaseFragment implements
             PickerImageView pickerImageView = (PickerImageView) view
                     .findViewById(R.id.thumbnail);
             MediaItem mediaItem = new MediaItem(mMediaType, uri);
+
+            // maxImages is limit of media items allowed.
+            // for IOS/plugin compatibility the var name is maxImages
+            int maxImages =  mMediaOptions.getMaxImages();
+            if (maxImages > 0 && mMediaAdapter.getMediaSelectedList().size() >= maxImages && !mMediaAdapter.isSelected(mediaItem)) {
+                return;
+            }
+
             mMediaAdapter.updateMediaSelected(mediaItem, pickerImageView);
             mMediaSelectedList = mMediaAdapter.getMediaSelectedList();
 
