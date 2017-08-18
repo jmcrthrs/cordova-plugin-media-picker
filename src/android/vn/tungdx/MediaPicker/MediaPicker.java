@@ -142,10 +142,7 @@ public class MediaPicker extends CordovaPlugin {
 						for (int i = 0; i < mediaSelectedList.size(); i++) {
 							File inputFile = new File(mediaSelectedList.get(i).getPathOrigin(context).toString());
 
-							Boolean isTemporaryFile = true;
-							try {
-								isTemporaryFile = !params.has("isTemporaryFile") || params.getBoolean("isTemporaryFile");
-							} catch (JSONException e) {}
+							Boolean isTemporaryFile = params.optBoolean("isTemporaryFile", true);
 
 							String ext = inputFile.getAbsolutePath().substring(inputFile.getAbsolutePath().lastIndexOf(".") + 1);
 							File outputFile = getWritableFile(ext, isTemporaryFile);

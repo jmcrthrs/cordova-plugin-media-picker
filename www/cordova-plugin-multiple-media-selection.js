@@ -6,6 +6,7 @@ MultipleMediaSelection.prototype.getPictures = function(success, error, options)
 	options = options || {};
 
 	options.height = options.height || 0;
+	options.isTemporaryFile = typeof options.isTemporaryFile == 'undefined' || options.isTemporaryFile == true;
 	options.maxImages = options.maxImages || 5;
 	options.mediaType = options.mediaType || 'any';
 	options.minImages = options.minImages || 0;
