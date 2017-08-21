@@ -1,11 +1,9 @@
 var exec = require('cordova/exec');
 
-var MultipleMediaSelection = function(){};
-
 // Refer to MediaPicker.java:136
-MultipleMediaSelection.prototype.ERROR_CANCELLED = 'Cancelled';
+exports.ERROR_CANCELLED = 'Cancelled';
 
-MultipleMediaSelection.prototype.getPictures = function(success, error, options) {
+exports.getPictures = function (success, error, options) {
 	options = options || {};
 
 	options.height = options.height || 0;
@@ -16,7 +14,6 @@ MultipleMediaSelection.prototype.getPictures = function(success, error, options)
 	options.quality = options.quality || 100;
 	options.width = options.width || 0;
 
-	exec(success, error, 'MultipleMediaSelection', 'getPictures', [options]);
+	exec(success, error, 'MediaPicker', 'getPictures', [options]);
 };
 
-window.multipleMediaSelection = new MultipleMediaSelection();

@@ -1,7 +1,7 @@
 {
   "author": "Busivid Team",
   "cordova": {
-    "id": "cordova-plugin-multiple-media-selection",
+    "id": "cordova-plugin-media-picker",
     "platforms": [
       "android",
       "ios"
@@ -16,10 +16,10 @@
     "multiple media selction"
   ],
   "license": "MIT",
-  "name": "cordova-plugin-multiple-media-selection",
+  "name": "cordova-plugin-media-picker",
   "repository": {
     "type": "git",
-    "url": "https://github.com/busivid/cordova-plugin-multiple-media-selection"
+    "url": "https://github.com/busivid/cordova-plugin-media-picker"
   },
   "version": "1.0.0"
 }

@@ -1,7 +1,4 @@
-/**
- * A Media Picker Plugin for Cordova/PhoneGap.
- */
-package vn.tungdx.mediapicker;
+package com.busivid.cordova.mediapicker;
 
 import org.apache.cordova.CallbackContext;
 import org.apache.cordova.CordovaPlugin;
@@ -30,9 +27,8 @@ import android.util.Log;
 import android.os.Environment;
 import android.os.Build;
 
-
-import vn.tungdx.mediapicker.activities.MediaPickerActivity;
-import com.busivid.one.R;
+import com.busivid.cordova.mediapicker.activities.MediaPickerActivity;
+import android.R;
 
 public class MediaPicker extends CordovaPlugin {
 	public static String TAG = "MediaPicker";
@@ -43,9 +39,10 @@ public class MediaPicker extends CordovaPlugin {
 
 	private int REQUEST_CODE_GET_PICTURES = 1000;
 
-	String[] permissions = {Manifest.permission.WRITE_EXTERNAL_STORAGE};
+	String[] permissions = { Manifest.permission.WRITE_EXTERNAL_STORAGE };
 
-	public boolean execute(String action, final JSONArray args, final CallbackContext callbackContext) throws JSONException {
+	public boolean execute(String action, final JSONArray args, final CallbackContext callbackContext)
+			throws JSONException {
 		this.callbackContext = callbackContext;
 		this.params = args.getJSONObject(0);
 		if (action.equals("getPictures")) {
@@ -96,8 +93,8 @@ public class MediaPicker extends CordovaPlugin {
 		}
 	}
 
-	public void onRequestPermissionResult(int requestCode, String[] permissions,
-										  int[] grantResults) throws JSONException {
+	public void onRequestPermissionResult(int requestCode, String[] permissions, int[] grantResults)
+			throws JSONException {
 		PluginResult result;
 		if (callbackContext != null) {
 			for (int r : grantResults) {
@@ -132,53 +129,52 @@ public class MediaPicker extends CordovaPlugin {
 				ArrayList<String> fileNames = new ArrayList<String>();
 
 				switch (resultCode) {
-					case 0:
-						callbackContext.error("Cancelled");
-						break;
-					case -1:
-						List<MediaItem> mediaSelectedList = MediaPickerActivity
-								.getMediaItemSelected(data);
+				case 0:
+					callbackContext.error("Cancelled");
+					break;
+				case -1:
+					List<MediaItem> mediaSelectedList = MediaPickerActivity.getMediaItemSelected(data);
 
-						for (int i = 0; i < mediaSelectedList.size(); i++) {
-							File inputFile = new File(mediaSelectedList.get(i).getPathOrigin(context).toString());
+					for (int i = 0; i < mediaSelectedList.size(); i++) {
+						File inputFile = new File(mediaSelectedList.get(i).getPathOrigin(context).toString());
 
-							Boolean isTemporaryFile = params.optBoolean("isTemporaryFile", true);
+						Boolean isTemporaryFile = params.optBoolean("isTemporaryFile", true);
 
-							String ext = inputFile.getAbsolutePath().substring(inputFile.getAbsolutePath().lastIndexOf(".") + 1);
-							File outputFile = getWritableFile(ext, isTemporaryFile);
+						String ext = inputFile.getAbsolutePath()
+								.substring(inputFile.getAbsolutePath().lastIndexOf(".") + 1);
+						File outputFile = getWritableFile(ext, isTemporaryFile);
 
-							try {
-								copyFile(inputFile, outputFile);
-							} catch (IOException exception) {
-								callbackContext.error(exception.getMessage());
-								return;
-							}
-
-							fileNames.add(outputFile.getAbsolutePath());
+						try {
+							copyFile(inputFile, outputFile);
+						} catch (IOException exception) {
+							callbackContext.error(exception.getMessage());
+							return;
 						}
 
-						JSONArray res = new JSONArray(fileNames);
-						callbackContext.success(res);
-						break;
-					default:
-						callbackContext.error(resultCode);
-						break;
+						fileNames.add(outputFile.getAbsolutePath());
+					}
+
+					JSONArray res = new JSONArray(fileNames);
+					callbackContext.success(res);
+					break;
+				default:
+					callbackContext.error(resultCode);
+					break;
 				}
 			}
 		}).start();
-
 
 		super.onActivityResult(requestCode, resultCode, data);
 	}
 
 	private File getWritableFile(String ext, Boolean isTemporaryPath) {
 		int i = 1;
-		File storageDirectory = isTemporaryPath
-				? cordova.getActivity().getCacheDir()
+		File storageDirectory = isTemporaryPath ? cordova.getActivity().getCacheDir()
 				: cordova.getActivity().getApplicationContext().getFilesDir();
 
 		//hack for galaxy camera 2.
-		if (Build.MODEL.equals("EK-GC200") && Build.MANUFACTURER.equals("samsung") && new File("/storage/extSdCard/").canRead()) {
+		if (Build.MODEL.equals("EK-GC200") && Build.MANUFACTURER.equals("samsung")
+				&& new File("/storage/extSdCard/").canRead()) {
 			storageDirectory = new File("/storage/extSdCard/.com.buzzcard.brandingtool/");
 		}
 

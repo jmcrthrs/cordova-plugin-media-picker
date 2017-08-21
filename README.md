@@ -1,4 +1,4 @@
-# cordova-plugin-multiple-media-selection
+# cordova-plugin-media-picker
 Plugin for selecting or capturing multiple images/videos.
 
 ## Libraries

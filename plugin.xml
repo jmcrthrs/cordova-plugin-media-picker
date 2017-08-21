@@ -1,15 +1,15 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<plugin id="cordova-plugin-multiple-media-selection" version="1.0.0" xmlns="http://apache.org/cordova/ns/plugins/1.0" xmlns:android="http://schemas.android.com/apk/res/android">
+<plugin id="cordova-plugin-media-picker" version="1.0.0" xmlns="http://apache.org/cordova/ns/plugins/1.0" xmlns:android="http://schemas.android.com/apk/res/android">
 	<author>Busivid Team</author>
 	<description>Plugin for selecting or capturing multiple images/videos.</description>
 	<engines>
 		<engine name="cordova-ios" version=">=3.0.0" />
 	</engines>
-	<js-module name="cordova-plugin-multiple-media-selection" src="www/cordova-plugin-multiple-media-selection.js">
-		<clobbers target="cordova.plugins.cordova-plugin-multiple-media-selection" />
+	<js-module name="MediaPicker" src="www/MediaPicker.js">
+		<clobbers target="cordova.plugins.MediaPicker" />
 	</js-module>
 	<license>MIT</license>
-	<name>cordova-plugin-multiple-media-selection</name>	
+	<name>cordova-plugin-media-picker</name>	
 	<platform name="android">
 		<config-file target="AndroidManifest.xml" parent="/*">
 			<uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
@@ -17,10 +17,11 @@
 		</config-file>
 		<config-file target="AndroidManifest.xml" parent="/manifest/application">
 			<activity
-				android:name="vn.tungdx.mediapicker.activities.MediaPickerActivity"
+				android:name="com.busivid.cordova.mediapicker.MediaPickerActivity"
 				android:screenOrientation="portrait"
 				android:theme="@style/MediaPickerTheme" />
 		</config-file>
+
 		<config-file target="res/values/strings.xml" parent="/*">
 			<string name="waiting">Waiting&#8230;</string>
 			<string name="cancel">Cancel</string>
@@ -28,41 +29,42 @@
 			<string name="ok">OK</string>
 		</config-file>
 		<config-file target="res/xml/config.xml" parent="/*">
-			<feature name="MultipleMediaSelection">
-				<param name="android-package" value="vn.tungdx.mediapicker.MediaPicker"/>
+			<feature name="MediaPicker">
+				<param name="android-package" value="com.busivid.cordova.mediapicker.MediaPicker"/>
 			</feature>
 		</config-file>
+
 		<framework src="com.android.support:appcompat-v7:+"/>
-		
-		<source-file src="src/android/com/busivid/cordova/cordova-plugin-multiple-media-selection/CropListener.java" target-dir="src/com/busivid/cordova/cordova-plugin-multiple-media-selection" />
-		<source-file src="src/android/com/busivid/cordova/cordova-plugin-multiple-media-selection/MediaAdapter.java" target-dir="src/com/busivid/cordova/cordova-plugin-multiple-media-selection" />
-		<source-file src="src/android/com/busivid/cordova/cordova-plugin-multiple-media-selection/MediaItem.java" target-dir="src/com/busivid/cordova/cordova-plugin-multiple-media-selection" />
-		<source-file src="src/android/com/busivid/cordova/cordova-plugin-multiple-media-selection/MediaOptions.java" target-dir="src/com/busivid/cordova/cordova-plugin-multiple-media-selection" />
-		<source-file src="src/android/com/busivid/cordova/cordova-plugin-multiple-media-selection/MediaSelectedListener.java" target-dir="src/com/busivid/cordova/cordova-plugin-multiple-media-selection" />
-		<source-file src="src/android/com/busivid/cordova/cordova-plugin-multiple-media-selection/MultipleMediaSelection.java" target-dir="src/com/busivid/cordova/cordova-plugin-multiple-media-selection" />
 
-		<source-file src="src/android/com/busivid/cordova/cordova-plugin-multiple-media-selection/activities/BaseFragment.java" target-dir="src/com/busivid/cordova/cordova-plugin-multiple-media-selection/activities" />
-		<source-file src="src/android/com/busivid/cordova/cordova-plugin-multiple-media-selection/activities/FragmentHost.java" target-dir="src/com/busivid/cordova/cordova-plugin-multiple-media-selection/activities" />
-		<source-file src="src/android/com/busivid/cordova/cordova-plugin-multiple-media-selection/activities/MediaPickerActivity.java" target-dir="src/com/busivid/cordova/cordova-plugin-multiple-media-selection/activities" />
-		<source-file src="src/android/com/busivid/cordova/cordova-plugin-multiple-media-selection/activities/MediaPickerErrorDialog.java" target-dir="src/com/busivid/cordova/cordova-plugin-multiple-media-selection/activities" />
-		<source-file src="src/android/com/busivid/cordova/cordova-plugin-multiple-media-selection/activities/MediaPickerFragment.java" target-dir="src/com/busivid/cordova/cordova-plugin-multiple-media-selection/activities" />
+		<source-file src="src/android/com/busivid/cordova/mediapicker/CropListener.java" target-dir="src/com/busivid/cordova/mediapicker" />
+		<source-file src="src/android/com/busivid/cordova/mediapicker/MediaAdapter.java" target-dir="src/com/busivid/cordova/mediapicker" />
+		<source-file src="src/android/com/busivid/cordova/mediapicker/MediaItem.java" target-dir="src/com/busivid/cordova/mediapicker" />
+		<source-file src="src/android/com/busivid/cordova/mediapicker/MediaOptions.java" target-dir="src/com/busivid/cordova/mediapicker" />
+		<source-file src="src/android/com/busivid/cordova/mediapicker/MediaSelectedListener.java" target-dir="src/com/busivid/cordova/mediapicker" />
+		<source-file src="src/android/com/busivid/cordova/mediapicker/MediaPicker.java" target-dir="src/com/busivid/cordova/mediapicker" />
 
-		<source-file src="src/android/com/busivid/cordova/cordova-plugin-multiple-media-selection/imageloader/MediaImageLoader.java" target-dir="src/com/busivid/cordova/cordova-plugin-multiple-media-selection/imageloader" />
-		<source-file src="src/android/com/busivid/cordova/cordova-plugin-multiple-media-selection/imageloader/MediaImageLoaderImpl.java" target-dir="src/com/busivid/cordova/cordova-plugin-multiple-media-selection/imageloader" />
+		<source-file src="src/android/com/busivid/cordova/mediapicker/activities/BaseFragment.java" target-dir="src/com/busivid/cordova/mediapicker/activities" />
+		<source-file src="src/android/com/busivid/cordova/mediapicker/activities/FragmentHost.java" target-dir="src/com/busivid/cordova/mediapicker/activities" />
+		<source-file src="src/android/com/busivid/cordova/mediapicker/activities/MediaPickerActivity.java" target-dir="src/com/busivid/cordova/mediapicker/activities" />
+		<source-file src="src/android/com/busivid/cordova/mediapicker/activities/MediaPickerErrorDialog.java" target-dir="src/com/busivid/cordova/mediapicker/activities" />
+		<source-file src="src/android/com/busivid/cordova/mediapicker/activities/MediaPickerFragment.java" target-dir="src/com/busivid/cordova/mediapicker/activities" />
 
-		<source-file src="src/android/com/busivid/cordova/cordova-plugin-multiple-media-selection/utils/MediaUtils.java" target-dir="src/com/busivid/cordova/cordova-plugin-multiple-media-selection/utils" />
-		<source-file src="src/android/com/busivid/cordova/cordova-plugin-multiple-media-selection/utils/MessageUtils.java" target-dir="src/com/busivid/cordova/cordova-plugin-multiple-media-selection/utils" />
-		<source-file src="src/android/com/busivid/cordova/cordova-plugin-multiple-media-selection/utils/RecursiveFileObserver.java" target-dir="src/com/busivid/cordova/cordova-plugin-multiple-media-selection/utils" />
-		<source-file src="src/android/com/busivid/cordova/cordova-plugin-multiple-media-selection/utils/Utils.java" target-dir="src/com/busivid/cordova/cordova-plugin-multiple-media-selection/utils" />
+		<source-file src="src/android/com/busivid/cordova/mediapicker/imageloader/MediaImageLoader.java" target-dir="src/com/busivid/cordova/mediapicker/imageloader" />
+		<source-file src="src/android/com/busivid/cordova/mediapicker/imageloader/MediaImageLoaderImpl.java" target-dir="src/com/busivid/cordova/mediapicker/imageloader" />
 
-		<source-file src="src/android/com/busivid/cordova/cordova-plugin-multiple-media-selection/widget/HeaderGridView.java" target-dir="src/com/busivid/cordova/cordova-plugin-multiple-media-selection/widget" />
-		<source-file src="src/android/com/busivid/cordova/cordova-plugin-multiple-media-selection/widget/PickerImageView.java" target-dir="src/com/busivid/cordova/cordova-plugin-multiple-media-selection/widget" />
+		<source-file src="src/android/com/busivid/cordova/mediapicker/utils/MediaUtils.java" target-dir="src/com/busivid/cordova/mediapicker/utils" />
+		<source-file src="src/android/com/busivid/cordova/mediapicker/utils/MessageUtils.java" target-dir="src/com/busivid/cordova/mediapicker/utils" />
+		<source-file src="src/android/com/busivid/cordova/mediapicker/utils/RecursiveFileObserver.java" target-dir="src/com/busivid/cordova/mediapicker/utils" />
+		<source-file src="src/android/com/busivid/cordova/mediapicker/utils/Utils.java" target-dir="src/com/busivid/cordova/mediapicker/utils" />
+
+		<source-file src="src/android/com/busivid/cordova/mediapicker/widget/HeaderGridView.java" target-dir="src/com/busivid/cordova/mediapicker/widget" />
+		<source-file src="src/android/com/busivid/cordova/mediapicker/widget/PickerImageView.java" target-dir="src/com/busivid/cordova/mediapicker/widget" />
 
 		<source-file src="src/android/com/nostra13/universalimageloader/cache/disc/DiskCache.java" target-dir="src/com/nostra13/universalimageloader/cache/disc" />
 
 		<source-file src="src/android/com/nostra13/universalimageloader/cache/disc/impl/BaseDiskCache.java" target-dir="src/com/nostra13/universalimageloader/cache/disc/impl" />
-		<source-file src="src/android/com/nostra13/universalimageloader/cache/disc/impl/LimitedAgeDiskCache.java" target-dir="src/com/nostra13/universalimageloader/cache/disc/impl/" />
-		<source-file src="src/android/com/nostra13/universalimageloader/cache/disc/impl/UnlimitedDiskCache.java" target-dir="src/com/nostra13/universalimageloader/cache/disc/impl/" />
+		<source-file src="src/android/com/nostra13/universalimageloader/cache/disc/impl/LimitedAgeDiskCache.java" target-dir="src/com/nostra13/universalimageloader/cache/disc/impl" />
+		<source-file src="src/android/com/nostra13/universalimageloader/cache/disc/impl/UnlimitedDiskCache.java" target-dir="src/com/nostra13/universalimageloader/cache/disc/impl" />
 		<source-file src="src/android/com/nostra13/universalimageloader/cache/disc/impl/ext/DiskLruCache.java" target-dir="src/com/nostra13/universalimageloader/cache/disc/impl/ext" />
 		<source-file src="src/android/com/nostra13/universalimageloader/cache/disc/impl/ext/LruDiskCache.java" target-dir="src/com/nostra13/universalimageloader/cache/disc/impl/ext" />
 		<source-file src="src/android/com/nostra13/universalimageloader/cache/disc/impl/ext/StrictLineReader.java" target-dir="src/com/nostra13/universalimageloader/cache/disc/impl/ext" />
@@ -173,15 +175,15 @@
 	</platform>
 	<platform name="ios">
 		<config-file target="config.xml" parent="/*">
-			<feature name="MultipleMediaSelection">
-				<param name="ios-package" value="MultipleMediaSelection"/>
+			<feature name="MediaPicker">
+				<param name="ios-package" value="MediaPicker"/>
 			</feature>
 		</config-file>
 		<framework src="ImageIO.framework" />
 		<framework src="Photos.framework" />
 		<framework src="QuartzCore.framework" />
 
-		<header-file src="src/ios/MultipleMediaSelection.h" />
+		<header-file src="src/ios/MediaPicker.h" />
 
 		<header-file src="src/ios/QBImagePicker/QBAlbumCell.h" />
 		<header-file src="src/ios/QBImagePicker/QBAlbumsViewController.h" />
@@ -195,7 +197,7 @@
 		<header-file src="src/ios/QBImagePicker/QBVideoIconView.h" />
 		<header-file src="src/ios/QBImagePicker/QBVideoIndicatorView.h" />
 
-		<source-file src="src/ios/MultipleMediaSelection.m" />
+		<source-file src="src/ios/MediaPicker.m" />
 
 		<source-file src="src/ios/QBImagePicker/QBAlbumCell.m" />
 		<source-file src="src/ios/QBImagePicker/QBAlbumsViewController.m" />
