@@ -1,10 +1,17 @@
 package com.busivid.cordova.mediapicker;
 
+import android.Manifest;
+import android.content.Context;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.os.Build;
+
+import com.busivid.cordova.mediapicker.activities.MediaPickerActivity;
+
 import org.apache.cordova.CallbackContext;
 import org.apache.cordova.CordovaPlugin;
 import org.apache.cordova.PermissionHelper;
 import org.apache.cordova.PluginResult;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -17,17 +24,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
-
-import android.app.Activity;
-import android.content.Context;
-import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.Manifest;
-import android.util.Log;
-import android.os.Environment;
-import android.os.Build;
-
-import com.busivid.cordova.mediapicker.activities.MediaPickerActivity;
 
 public class MediaPicker extends CordovaPlugin {
 	public static String TAG = "MediaPicker";
@@ -123,39 +119,38 @@ public class MediaPicker extends CordovaPlugin {
 		final CallbackContext callbackContext = this.callbackContext;
 		final Context context = this.cordova.getActivity().getApplicationContext();
 		final JSONObject params = this.params;
+
 		new Thread(new Runnable() {
 			public void run() {
 				ArrayList<String> fileNames = new ArrayList<String>();
+				Boolean isTemporaryFile = params.optBoolean("isTemporaryFile", true);
 
 				switch (resultCode) {
 				case 0:
 					callbackContext.error("Cancelled");
 					break;
+
 				case -1:
 					List<MediaItem> mediaSelectedList = MediaPickerActivity.getMediaItemSelected(data);
 
 					for (int i = 0; i < mediaSelectedList.size(); i++) {
 						File inputFile = new File(mediaSelectedList.get(i).getPathOrigin(context).toString());
-
-						Boolean isTemporaryFile = params.optBoolean("isTemporaryFile", true);
-
-						String ext = inputFile.getAbsolutePath()
-								.substring(inputFile.getAbsolutePath().lastIndexOf(".") + 1);
-						File outputFile = getWritableFile(ext, isTemporaryFile);
+						String ext = inputFile.getAbsolutePath().substring(inputFile.getAbsolutePath().lastIndexOf(".") + 1);
 
 						try {
+							File outputFile = getWritableFile(ext, isTemporaryFile);
 							copyFile(inputFile, outputFile);
-						} catch (IOException exception) {
+							fileNames.add(outputFile.getAbsolutePath());
+						} catch (Exception exception) {
 							callbackContext.error(exception.getMessage());
 							return;
 						}
-
-						fileNames.add(outputFile.getAbsolutePath());
 					}
 
 					JSONArray res = new JSONArray(fileNames);
 					callbackContext.success(res);
 					break;
+
 				default:
 					callbackContext.error(resultCode);
 					break;
@@ -166,27 +161,29 @@ public class MediaPicker extends CordovaPlugin {
 		super.onActivityResult(requestCode, resultCode, data);
 	}
 
-	private File getWritableFile(String ext, Boolean isTemporaryPath) {
-		int i = 1;
-		File storageDirectory = isTemporaryPath ? cordova.getActivity().getCacheDir()
-				: cordova.getActivity().getApplicationContext().getFilesDir();
+	private File getWritableFile(String ext, Boolean isTemporaryPath) throws Exception {
+		File storageDirectory = isTemporaryPath
+			? cordova.getActivity().getCacheDir()
+			: cordova.getActivity().getApplicationContext().getFilesDir();
 
-		//hack for galaxy camera 2.
-		if (Build.MODEL.equals("EK-GC200") && Build.MANUFACTURER.equals("samsung")
-				&& new File("/storage/extSdCard/").canRead()) {
-			storageDirectory = new File("/storage/extSdCard/.com.buzzcard.brandingtool/");
-		}
+		// Hack for Samsung Galaxy Camera 2
+		if (Build.MANUFACTURER.equals("samsung") && Build.MODEL.equals("EK-GC200") && new File("/storage/extSdCard/").canRead())
+			storageDirectory = new File("/storage/extSdCard/." + cordova.getActivity().getApplicationContext().getPackageName() + "/");
+
+		storageDirectory = new File(storageDirectory.getAbsolutePath() + "/mediapicker/");
 
 		// Create the storage directory if it doesn't exist
 		storageDirectory.mkdirs();
+
 		String dataPath = storageDirectory.getAbsolutePath();
 		File file;
-		do {
+		for (int i = 0; i <= 99999; i++) {
 			file = new File(dataPath + String.format("/capture_%05d." + ext, i));
-			i++;
-		} while (file.exists());
+			if (!file.exists())
+				return file;
+		}
 
-		return file;
+		throw new Exception("Unable to getWritableFile");
 	}
 
 	private void copyFile(File src, File dst) throws IOException {
