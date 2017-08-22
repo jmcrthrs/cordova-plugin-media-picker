@@ -17,8 +17,6 @@ import com.busivid.cordova.mediapicker.imageloader.MediaImageLoader;
 import com.busivid.cordova.mediapicker.utils.MediaUtils;
 import com.busivid.cordova.mediapicker.widget.PickerImageView;
 
-import android.R;
-
 /**
  * Adapter for display media item list.
  */
@@ -77,9 +75,9 @@ public class MediaAdapter extends CursorAdapter implements RecyclerListener {
 	@Override
 	public View newView(Context context, Cursor cursor, ViewGroup viewGroup) {
 		ViewHolder holder = new ViewHolder();
-		View root = View.inflate(mContext, R.layout.list_item_mediapicker, null);
-		holder.imageView = (PickerImageView) root.findViewById(R.id.thumbnail);
-		holder.thumbnail = root.findViewById(R.id.overlay);
+		View root = View.inflate(mContext, getResources().getIdentifier("list_item_mediapicker", "layout", getPackageName()), null);
+		holder.imageView = (PickerImageView) root.findViewById(getResources().getIdentifier("thumbnail", "id", getPackageName()));
+		holder.thumbnail = root.findViewById(getResources().getIdentifier("overlay", "id", getPackageName()));
 
 		holder.imageView.setLayoutParams(mImageViewLayoutParams);
 		// Check the height matches our calculated column width
@@ -233,7 +231,7 @@ public class MediaAdapter extends CursorAdapter implements RecyclerListener {
 
 	@Override
 	public void onMovedToScrapHeap(View view) {
-		PickerImageView imageView = (PickerImageView) view.findViewById(R.id.thumbnail);
+		PickerImageView imageView = (PickerImageView) view.findViewById(getResources().getIdentifier("thumbnail", "id", getPackageName()));
 		mPickerImageViewSelected.remove(imageView);
 	}
 

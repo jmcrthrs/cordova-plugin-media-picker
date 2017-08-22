@@ -6,8 +6,6 @@ import android.graphics.Paint;
 import android.util.AttributeSet;
 import android.widget.ImageView;
 
-import android.R;
-
 /**
  * Display thumbnail of video, photo and state when video, photo selected or
  * not.
@@ -31,8 +29,8 @@ public class PickerImageView extends ImageView {
 	private void init() {
 		paintBorder = new Paint();
 		paintBorder.setAntiAlias(true);
-		paintBorder.setColor(getResources().getColor(R.color.picker_color));
-		borderSize = getResources().getDimensionPixelSize(R.dimen.picker_border_size);
+		paintBorder.setColor(getResources().getColor(getResources().getIdentifier("picker_color", "color", getPackageName())));
+		borderSize = getResources().getDimensionPixelSize(getResources().getIdentifier("picker_border_size", "dimen", getPackageName()));
 	}
 
 	public PickerImageView(Context context) {

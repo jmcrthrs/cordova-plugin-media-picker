@@ -6,8 +6,6 @@ import android.content.DialogInterface.OnClickListener;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 
-import android.R;
-
 /**
  * Create dialog for media picker module. Should only use in this module.
  */
@@ -31,8 +29,7 @@ public class MediaPickerErrorDialog extends DialogFragment {
 
 	@Override
 	public Dialog onCreateDialog(Bundle savedInstanceState) {
-		return new AlertDialog.Builder(getActivity()).setMessage(mMessage)
-				.setPositiveButton(R.string.ok, mOnPositionClickListener).create();
+		return new AlertDialog.Builder(getActivity()).setMessage(mMessage).setPositiveButton(getResources().getIdentifier("ok", "string", getPackageName()), mOnPositionClickListener).create();
 	}
 
 	public void setOnOKClickListener(OnClickListener mOnClickListener) {

@@ -30,7 +30,6 @@ import com.busivid.cordova.mediapicker.CropListener;
 import com.busivid.cordova.mediapicker.MediaItem;
 import com.busivid.cordova.mediapicker.MediaOptions;
 import com.busivid.cordova.mediapicker.MediaSelectedListener;
-import android.R;
 import com.busivid.cordova.mediapicker.imageloader.MediaImageLoader;
 import com.busivid.cordova.mediapicker.imageloader.MediaImageLoaderImpl;
 import com.busivid.cordova.mediapicker.utils.MediaUtils;
@@ -147,25 +146,25 @@ public class MediaPickerActivity extends AppCompatActivity implements MediaSelec
 		// memory when crop image and change orientation, must check third party
 		// to crop image again).
 		setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-		setContentView(R.layout.activity_mediapicker);
+		setContentView(getResources().getIdentifier("activity_mediapicker", "layout", getPackageName()));
 		if (savedInstanceState != null) {
 			mMediaOptions = savedInstanceState.getParcelable(EXTRA_MEDIA_OPTIONS);
 			mPhotoFileCapture = (File) savedInstanceState.getSerializable(KEY_PHOTOFILE_CAPTURE);
 		} else {
 			mMediaOptions = getIntent().getParcelableExtra(EXTRA_MEDIA_OPTIONS);
 			if (mMediaOptions == null) {
-				throw new IllegalArgumentException(
-						"MediaOptions must be not null, you should use MediaPickerActivity.open(Activity activity, int requestCode,MediaOptions options) method instead.");
+				throw new IllegalArgumentException("MediaOptions must be not null, you should use MediaPickerActivity.open(Activity activity, int requestCode,MediaOptions options) method instead.");
 			}
 		}
 		if (getActivePage() == null) {
-			getSupportFragmentManager().beginTransaction()
-					.replace(R.id.container, MediaPickerFragment.newInstance(mMediaOptions)).commit();
+			getSupportFragmentManager()
+				.beginTransaction()
+				.replace(getResources().getIdentifier("container", "id", getPackageName()), MediaPickerFragment.newInstance(mMediaOptions))
+				.commit();
 		}
 		getSupportFragmentManager().addOnBackStackChangedListener(this);
 		if (getSupportActionBar() != null) {
-			getSupportActionBar()
-					.setBackgroundDrawable(getResources().getDrawable(R.drawable.picker_actionbar_translucent));
+			getSupportActionBar().setBackgroundDrawable(getResources().getDrawable(getResources().getIdentifier("picker_actionbar_translucent", "drawable", getPackageName())));
 			getSupportActionBar().setDisplayShowTitleEnabled(false);
 			getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 		}
@@ -174,11 +173,11 @@ public class MediaPickerActivity extends AppCompatActivity implements MediaSelec
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		MenuInflater inflater = getMenuInflater();
-		inflater.inflate(R.menu.mediapicker_main, menu);
-		mPhoto = menu.findItem(R.id.take_photo);
-		mVideo = menu.findItem(R.id.take_video);
-		mMediaSwitcher = menu.findItem(R.id.media_switcher);
-		mDone = menu.findItem(R.id.done);
+		inflater.inflate(getResources().getIdentifier("mediapicker_main", "menu", getPackageName()), menu);
+		mPhoto = menu.findItem(getResources().getIdentifier("take_photo", "id", getPackageName()));
+		mVideo = menu.findItem(getResources().getIdentifier("take_video", "id", getPackageName()));
+		mMediaSwitcher = menu.findItem(getResources().getIdentifier("media_switcher", "id", getPackageName()));
+		mDone = menu.findItem(getResources().getIdentifier("done", "id", getPackageName()));
 		syncActionbar();
 		return super.onCreateOptionsMenu(menu);
 	}
@@ -195,16 +194,15 @@ public class MediaPickerActivity extends AppCompatActivity implements MediaSelec
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		int i = item.getItemId();
-		if (i == android.R.id.home) {
+		if (i == getResources().getIdentifier("home", "id", getPackageName())) {
 			finish();
-
-		} else if (i == R.id.take_photo) {
+		} else if (i == getResources().getIdentifier("take_photo", "id", getPackageName())) {
 			takePhoto();
 			return true;
-		} else if (i == R.id.take_video) {
+		} else if (i == getResources().getIdentifier("take_video", "id", getPackageName())) {
 			takeVideo();
 			return true;
-		} else if (i == R.id.media_switcher) {
+		} else if (i == getResources().getIdentifier("media_switcher", "id", getPackageName())) {
 			Fragment activePage = getActivePage();
 			if (mMediaOptions.canSelectPhotoAndVideo() && activePage instanceof MediaPickerFragment) {
 				MediaPickerFragment mediaPickerFragment = ((MediaPickerFragment) activePage);
@@ -212,7 +210,7 @@ public class MediaPickerActivity extends AppCompatActivity implements MediaSelec
 				syncIconMenu(mediaPickerFragment.getMediaType());
 			}
 			return true;
-		} else if (i == R.id.done) {
+		} else if (i == getResources().getIdentifier("done", "id", getPackageName())) {
 			Fragment activePage;
 			activePage = getActivePage();
 			boolean isPhoto = ((MediaPickerFragment) activePage).getMediaType() == MediaItem.PHOTO;
@@ -295,11 +293,13 @@ public class MediaPickerActivity extends AppCompatActivity implements MediaSelec
 	private void syncIconMenu(int mediaType) {
 		switch (mediaType) {
 		case MediaItem.PHOTO:
-			mMediaSwitcher.setIcon(R.drawable.ab_picker_video_2);
+			mMediaSwitcher.setIcon(getResources().getIdentifier("ab_picker_video_2", "drawable", getPackageName()));
 			break;
+
 		case MediaItem.VIDEO:
-			mMediaSwitcher.setIcon(R.drawable.ab_picker_camera2);
+			mMediaSwitcher.setIcon(getResources().getIdentifier("ab_picker_camera2", "drawable", getPackageName()));
 			break;
+
 		default:
 			break;
 		}
@@ -426,9 +426,8 @@ public class MediaPickerActivity extends AppCompatActivity implements MediaSelec
 
 	/*private void showCropFragment(MediaItem mediaItem, MediaOptions options) {
 	    Fragment fragment = PhotoCropFragment.newInstance(mediaItem, options);
-	    FragmentTransaction transaction = getSupportFragmentManager()
-	            .beginTransaction();
-	    transaction.replace(R.id.container, fragment);
+	    FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+	    transaction.replace(getResources().getIdentifier("container", "id", getPackageName()), fragment);
 	    transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
 	    transaction.addToBackStack(null);
 	    transaction.commit();
@@ -468,7 +467,7 @@ public class MediaPickerActivity extends AppCompatActivity implements MediaSelec
 	}
 
 	private Fragment getActivePage() {
-		return getSupportFragmentManager().findFragmentById(R.id.container);
+		return getSupportFragmentManager().findFragmentById(getResources().getIdentifier("container", "id", getPackageName()));
 	}
 
 	private void hideAllOptionsMenu() {

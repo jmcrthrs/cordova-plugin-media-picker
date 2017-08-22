@@ -10,18 +10,11 @@ import android.os.Environment;
 import java.io.File;
 import java.io.IOException;
 
-import android.R;
-
 public class Utils {
 	// refers: http://stackoverflow.com/a/7167086/2128392
 	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 	public static int getActionbarHeight(Activity activity) {
-		int attr;
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-			attr = android.R.attr.actionBarSize;
-		} else {
-			attr = R.attr.actionBarSize;
-		}
+		int attr = getResources().getIdentifier("actionBarSize", "attr", getPackageName());
 		final TypedArray styledAttributes = activity.getTheme().obtainStyledAttributes(new int[] { attr });
 		int actionbarSize = (int) styledAttributes.getDimension(0, 0);
 		styledAttributes.recycle();

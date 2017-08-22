@@ -28,7 +28,6 @@ import com.busivid.cordova.mediapicker.MediaAdapter;
 import com.busivid.cordova.mediapicker.MediaItem;
 import com.busivid.cordova.mediapicker.MediaOptions;
 import com.busivid.cordova.mediapicker.MediaSelectedListener;
-import android.R;
 import com.busivid.cordova.mediapicker.utils.MediaUtils;
 import com.busivid.cordova.mediapicker.utils.Utils;
 import com.busivid.cordova.mediapicker.widget.HeaderGridView;
@@ -97,13 +96,13 @@ public class MediaPickerFragment extends BaseFragment implements LoaderManager.L
 			}
 		}
 		// get the photo size and spacing
-		mPhotoSize = getResources().getDimensionPixelSize(R.dimen.picker_photo_size);
-		mPhotoSpacing = getResources().getDimensionPixelSize(R.dimen.picker_photo_spacing);
+		mPhotoSize = getResources().getDimensionPixelSize(getResources().getIdentifier("picker_photo_size", "dimen", getPackageName()));
+		mPhotoSpacing = getResources().getDimensionPixelSize(getResources().getIdentifier("picker_photo_spacing", "dimen", getPackageName()));
 	}
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		View root = inflater.inflate(R.layout.fragment_mediapicker, container, false);
+		View root = inflater.inflate(getResources().getIdentifier("fragment_mediapicker", "layout", getPackageName()), container, false);
 		initView(root);
 		return root;
 	}
@@ -204,7 +203,7 @@ public class MediaPickerFragment extends BaseFragment implements LoaderManager.L
 			} else {
 				uri = MediaUtils.getVideoUri((Cursor) object);
 			}
-			PickerImageView pickerImageView = (PickerImageView) view.findViewById(R.id.thumbnail);
+			PickerImageView pickerImageView = (PickerImageView) view.findViewById(getResources().getIdentifier("thumbnail", "id", getPackageName()));
 			MediaItem mediaItem = new MediaItem(mMediaType, uri);
 
 			// maxImages is limit of media items allowed.
@@ -278,20 +277,19 @@ public class MediaPickerFragment extends BaseFragment implements LoaderManager.L
 
 	private void switchToError() {
 		mNoItemView.setVisibility(View.VISIBLE);
-		mNoItemView.setText(R.string.picker_no_items);
+		mNoItemView.setText(getResources().getIdentifier("picker_no_items", "string", getPackageName()));
 		mGridView.setVisibility(View.GONE);
 	}
 
 	private void initView(View view) {
-		mGridView = (HeaderGridView) view.findViewById(R.id.grid);
+		mGridView = (HeaderGridView) view.findViewById(getResources().getIdentifier("grid", "id", getPackageName()));
 		View header = new View(getActivity());
-		ViewGroup.LayoutParams params = new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
-				Utils.getActionbarHeight(getActivity()));
+		ViewGroup.LayoutParams params = new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, Utils.getActionbarHeight(getActivity()));
 		header.setLayoutParams(params);
 		mGridView.addHeaderView(header);
 
 		mGridView.setOnItemClickListener(this);
-		mNoItemView = (TextView) view.findViewById(R.id.no_data);
+		mNoItemView = (TextView) view.findViewById(getResources().getIdentifier("no_data", "id", getPackageName()));
 
 		// get the view tree observer of the grid and set the height and numcols
 		// dynamically

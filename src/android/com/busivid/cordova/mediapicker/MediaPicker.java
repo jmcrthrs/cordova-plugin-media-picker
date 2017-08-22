@@ -28,7 +28,6 @@ import android.os.Environment;
 import android.os.Build;
 
 import com.busivid.cordova.mediapicker.activities.MediaPickerActivity;
-import android.R;
 
 public class MediaPicker extends CordovaPlugin {
 	public static String TAG = "MediaPicker";

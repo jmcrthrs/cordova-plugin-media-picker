@@ -25,9 +25,13 @@ public class MediaImageLoaderImpl implements MediaImageLoader {
 
 	@Override
 	public void displayImage(Uri uri, ImageView imageView) {
-		DisplayImageOptions displayImageOptions = new DisplayImageOptions.Builder().cacheInMemory(true)
-				.cacheOnDisk(false).considerExifParams(true).resetViewBeforeLoading(true)
-				.showImageOnLoading(R.color.picker_imageloading).build();
+		DisplayImageOptions displayImageOptions = new DisplayImageOptions.Builder()
+			.cacheInMemory(true)
+			.cacheOnDisk(false)
+			.considerExifParams(true)
+			.resetViewBeforeLoading(true)
+			.showImageOnLoading(getResources().getIdentifier("picker_imageloading", "color", getPackageName()))
+			.build();
 
 		ImageAware imageAware = new ImageViewAware(imageView, false);
 		ImageLoader.getInstance().displayImage(uri.toString(), imageAware, displayImageOptions);
