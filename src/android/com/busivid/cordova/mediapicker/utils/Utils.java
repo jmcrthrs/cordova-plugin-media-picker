@@ -14,7 +14,7 @@ public class Utils {
 	// refers: http://stackoverflow.com/a/7167086/2128392
 	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 	public static int getActionbarHeight(Activity activity) {
-		int attr = getResources().getIdentifier("actionBarSize", "attr", getPackageName());
+		int attr = activity.getApplicationContext().getResources().getIdentifier("actionBarSize", "attr", activity.getApplicationContext().getPackageName());
 		final TypedArray styledAttributes = activity.getTheme().obtainStyledAttributes(new int[] { attr });
 		int actionbarSize = (int) styledAttributes.getDimension(0, 0);
 		styledAttributes.recycle();

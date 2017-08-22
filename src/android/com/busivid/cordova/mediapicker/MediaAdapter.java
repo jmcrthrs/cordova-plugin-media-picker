@@ -10,12 +10,12 @@ import android.view.ViewGroup.LayoutParams;
 import android.widget.AbsListView.RecyclerListener;
 import android.widget.RelativeLayout;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.busivid.cordova.mediapicker.imageloader.MediaImageLoader;
 import com.busivid.cordova.mediapicker.utils.MediaUtils;
 import com.busivid.cordova.mediapicker.widget.PickerImageView;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Adapter for display media item list.
@@ -75,9 +75,9 @@ public class MediaAdapter extends CursorAdapter implements RecyclerListener {
 	@Override
 	public View newView(Context context, Cursor cursor, ViewGroup viewGroup) {
 		ViewHolder holder = new ViewHolder();
-		View root = View.inflate(mContext, getResources().getIdentifier("list_item_mediapicker", "layout", getPackageName()), null);
-		holder.imageView = (PickerImageView) root.findViewById(getResources().getIdentifier("thumbnail", "id", getPackageName()));
-		holder.thumbnail = root.findViewById(getResources().getIdentifier("overlay", "id", getPackageName()));
+		View root = View.inflate(mContext, mContext.getResources().getIdentifier("list_item_mediapicker", "layout", mContext.getPackageName()), null);
+		holder.imageView = (PickerImageView) root.findViewById(mContext.getResources().getIdentifier("thumbnail", "id", mContext.getPackageName()));
+		holder.thumbnail = root.findViewById(mContext.getResources().getIdentifier("overlay", "id", mContext.getPackageName()));
 
 		holder.imageView.setLayoutParams(mImageViewLayoutParams);
 		// Check the height matches our calculated column width
@@ -231,7 +231,7 @@ public class MediaAdapter extends CursorAdapter implements RecyclerListener {
 
 	@Override
 	public void onMovedToScrapHeap(View view) {
-		PickerImageView imageView = (PickerImageView) view.findViewById(getResources().getIdentifier("thumbnail", "id", getPackageName()));
+		PickerImageView imageView = (PickerImageView) view.findViewById(mContext.getResources().getIdentifier("thumbnail", "id", mContext.getPackageName()));
 		mPickerImageViewSelected.remove(imageView);
 	}
 

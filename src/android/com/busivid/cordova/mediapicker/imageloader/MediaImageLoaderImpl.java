@@ -30,7 +30,7 @@ public class MediaImageLoaderImpl implements MediaImageLoader {
 			.cacheOnDisk(false)
 			.considerExifParams(true)
 			.resetViewBeforeLoading(true)
-			.showImageOnLoading(getResources().getIdentifier("picker_imageloading", "color", getPackageName()))
+			.showImageOnLoading(imageView.getResources().getIdentifier("picker_imageloading", "color", imageView.getContext().getPackageName()))
 			.build();
 
 		ImageAware imageAware = new ImageViewAware(imageView, false);

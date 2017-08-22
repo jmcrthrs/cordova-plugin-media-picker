@@ -29,8 +29,8 @@ public class PickerImageView extends ImageView {
 	private void init() {
 		paintBorder = new Paint();
 		paintBorder.setAntiAlias(true);
-		paintBorder.setColor(getResources().getColor(getResources().getIdentifier("picker_color", "color", getPackageName())));
-		borderSize = getResources().getDimensionPixelSize(getResources().getIdentifier("picker_border_size", "dimen", getPackageName()));
+		paintBorder.setColor(getResources().getColor(getResources().getIdentifier("picker_color", "color", getContext().getPackageName())));
+		borderSize = getResources().getDimensionPixelSize(getResources().getIdentifier("picker_border_size", "dimen", getContext().getPackageName()));
 	}
 
 	public PickerImageView(Context context) {

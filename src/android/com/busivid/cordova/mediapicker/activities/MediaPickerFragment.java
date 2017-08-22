@@ -21,9 +21,6 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.TextView;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.busivid.cordova.mediapicker.MediaAdapter;
 import com.busivid.cordova.mediapicker.MediaItem;
 import com.busivid.cordova.mediapicker.MediaOptions;
@@ -32,6 +29,9 @@ import com.busivid.cordova.mediapicker.utils.MediaUtils;
 import com.busivid.cordova.mediapicker.utils.Utils;
 import com.busivid.cordova.mediapicker.widget.HeaderGridView;
 import com.busivid.cordova.mediapicker.widget.PickerImageView;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Display list of videos, photos from {@link MediaStore} and select one or many
@@ -96,13 +96,13 @@ public class MediaPickerFragment extends BaseFragment implements LoaderManager.L
 			}
 		}
 		// get the photo size and spacing
-		mPhotoSize = getResources().getDimensionPixelSize(getResources().getIdentifier("picker_photo_size", "dimen", getPackageName()));
-		mPhotoSpacing = getResources().getDimensionPixelSize(getResources().getIdentifier("picker_photo_spacing", "dimen", getPackageName()));
+		mPhotoSize = getResources().getDimensionPixelSize(getResources().getIdentifier("picker_photo_size", "dimen", getContext().getPackageName()));
+		mPhotoSpacing = getResources().getDimensionPixelSize(getResources().getIdentifier("picker_photo_spacing", "dimen", getContext().getPackageName()));
 	}
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		View root = inflater.inflate(getResources().getIdentifier("fragment_mediapicker", "layout", getPackageName()), container, false);
+		View root = inflater.inflate(getResources().getIdentifier("fragment_mediapicker", "layout", getContext().getPackageName()), container, false);
 		initView(root);
 		return root;
 	}
@@ -203,7 +203,7 @@ public class MediaPickerFragment extends BaseFragment implements LoaderManager.L
 			} else {
 				uri = MediaUtils.getVideoUri((Cursor) object);
 			}
-			PickerImageView pickerImageView = (PickerImageView) view.findViewById(getResources().getIdentifier("thumbnail", "id", getPackageName()));
+			PickerImageView pickerImageView = (PickerImageView) view.findViewById(getResources().getIdentifier("thumbnail", "id", getContext().getPackageName()));
 			MediaItem mediaItem = new MediaItem(mMediaType, uri);
 
 			// maxImages is limit of media items allowed.
@@ -277,19 +277,19 @@ public class MediaPickerFragment extends BaseFragment implements LoaderManager.L
 
 	private void switchToError() {
 		mNoItemView.setVisibility(View.VISIBLE);
-		mNoItemView.setText(getResources().getIdentifier("picker_no_items", "string", getPackageName()));
+		mNoItemView.setText(getResources().getIdentifier("picker_no_items", "string", getContext().getPackageName()));
 		mGridView.setVisibility(View.GONE);
 	}
 
 	private void initView(View view) {
-		mGridView = (HeaderGridView) view.findViewById(getResources().getIdentifier("grid", "id", getPackageName()));
+		mGridView = (HeaderGridView) view.findViewById(getResources().getIdentifier("grid", "id", getContext().getPackageName()));
 		View header = new View(getActivity());
 		ViewGroup.LayoutParams params = new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, Utils.getActionbarHeight(getActivity()));
 		header.setLayoutParams(params);
 		mGridView.addHeaderView(header);
 
 		mGridView.setOnItemClickListener(this);
-		mNoItemView = (TextView) view.findViewById(getResources().getIdentifier("no_data", "id", getPackageName()));
+		mNoItemView = (TextView) view.findViewById(getResources().getIdentifier("no_data", "id", getContext().getPackageName()));
 
 		// get the view tree observer of the grid and set the height and numcols
 		// dynamically

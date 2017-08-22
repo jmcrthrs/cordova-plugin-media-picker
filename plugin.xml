@@ -17,7 +17,7 @@
 		</config-file>
 		<config-file target="AndroidManifest.xml" parent="/manifest/application">
 			<activity
-				android:name="com.busivid.cordova.mediapicker.MediaPickerActivity"
+				android:name="com.busivid.cordova.mediapicker.activities.MediaPickerActivity"
 				android:screenOrientation="portrait"
 				android:theme="@style/MediaPickerTheme" />
 		</config-file>

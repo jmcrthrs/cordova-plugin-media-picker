@@ -14,7 +14,7 @@ public class MessageUtils {
 	 * @return message before record video.
 	 */
 	public static String getWarningMessageVideoDuration(Context context, int maxDuration) {
-		return context.getResources().getQuantityString(getResources().getIdentifier("picker_video_duration_warning", "plurals", getPackageName()), maxDuration, maxDuration);
+		return context.getResources().getQuantityString(context.getResources().getIdentifier("picker_video_duration_warning", "plurals", context.getPackageName()), maxDuration, maxDuration);
 	}
 
 	/**
@@ -25,7 +25,7 @@ public class MessageUtils {
 	 * {@link MediaOptions.Builder#setMaxVideoDuration(int)}
 	 */
 	public static String getInvalidMessageMaxVideoDuration(Context context, int maxDuration) {
-		return context.getResources().getQuantityString(getResources().getIdentifier("picker_video_duration_max", "plurals", getPackageName()), maxDuration, maxDuration);
+		return context.getResources().getQuantityString(context.getResources().getIdentifier("picker_video_duration_max", "plurals", context.getPackageName()), maxDuration, maxDuration);
 	}
 
 	/**
@@ -36,6 +36,6 @@ public class MessageUtils {
 	 * {@link MediaOptions.Builder#setMinVideoDuration(int)}
 	 */
 	public static String getInvalidMessageMinVideoDuration(Context context, int minDuration) {
-		return context.getResources().getQuantityString(getResources().getIdentifier("picker_video_duration_min", "plurals", getPackageName()), minDuration, minDuration);
+		return context.getResources().getQuantityString(context.getResources().getIdentifier("picker_video_duration_min", "plurals", context.getPackageName()), minDuration, minDuration);
 	}
 }
