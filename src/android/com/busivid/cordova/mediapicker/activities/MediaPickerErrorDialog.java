@@ -29,7 +29,7 @@ public class MediaPickerErrorDialog extends DialogFragment {
 
 	@Override
 	public Dialog onCreateDialog(Bundle savedInstanceState) {
-		return new AlertDialog.Builder(getActivity()).setMessage(mMessage).setPositiveButton(getResources().getIdentifier("ok", "string", getContext().getPackageName()), mOnPositionClickListener).create();
+		return new AlertDialog.Builder(getActivity()).setMessage(mMessage).setPositiveButton(android.R.string.ok, mOnPositionClickListener).create();
 	}
 
 	public void setOnOKClickListener(OnClickListener mOnClickListener) {
