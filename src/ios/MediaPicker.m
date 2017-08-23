@@ -193,7 +193,7 @@
 
 - (void)qb_imagePickerControllerDidCancel:(QBImagePickerController *)imagePickerController
 {
-	CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"User cancelled."];
+	CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"CANCELLED"];
 	[self.commandDelegate sendPluginResult:pluginResult callbackId:self.callbackId];
 	self.callbackId = nil;
 

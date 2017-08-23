@@ -27,8 +27,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MediaPicker extends CordovaPlugin {
+	private static final String ERROR_CANCELLED = "CANCELLED";
 	private static final String EXTRA_MEDIA_OPTIONS = "extra_media_options";
 	private static final int REQUEST_CODE_GET_PICTURES = 1000;
+	private static final String PROGRESS_MEDIA_IMPORTED = "MEDIA_IMPORTED";
+	private static final String PROGRESS_MEDIA_IMPORTING = "MEDIA_IMPORTING";
 	public static String TAG = "MediaPicker";
 
 	private JSONObject _args;
@@ -175,11 +178,13 @@ public class MediaPicker extends CordovaPlugin {
 
 				switch (resultCode) {
 					case 0:
-						callbackContext.error("Cancelled");
+						callbackContext.error(ERROR_CANCELLED);
 						break;
 
 					case -1:
 						final List<MediaItem> mediaSelectedList = MediaPickerActivity.getMediaItemSelected(data);
+
+						onMediaImporting(mediaSelectedList.size());
 
 						for (int i = 0; i < mediaSelectedList.size(); i++) {
 							File inputFile = new File(mediaSelectedList.get(i).getPathOrigin(context));
@@ -189,6 +194,7 @@ public class MediaPicker extends CordovaPlugin {
 								File outputFile = getWritableFile(ext, isTemporaryFile);
 								copyFile(inputFile, outputFile);
 								fileNames.add(outputFile.getAbsolutePath());
+								onMediaImported(outputFile.getAbsolutePath());
 							} catch (Exception exception) {
 								callbackContext.error(exception.getMessage());
 								return;
@@ -207,6 +213,36 @@ public class MediaPicker extends CordovaPlugin {
 		}).start();
 
 		super.onActivityResult(requestCode, resultCode, data);
+	}
+
+	private void onMediaImported(String path) {
+		JSONObject jsonObj = new JSONObject();
+		try {
+			jsonObj.put("data", path);
+			jsonObj.put("type", PROGRESS_MEDIA_IMPORTED);
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+
+		PluginResult progressResult = new PluginResult(PluginResult.Status.OK, jsonObj);
+		progressResult.setKeepCallback(true);
+
+		_callbackContext.sendPluginResult(progressResult);
+	}
+
+	private void onMediaImporting(int count) {
+		JSONObject jsonObj = new JSONObject();
+		try {
+			jsonObj.put("data", count);
+			jsonObj.put("type", PROGRESS_MEDIA_IMPORTING);
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+
+		PluginResult progressResult = new PluginResult(PluginResult.Status.OK, jsonObj);
+		progressResult.setKeepCallback(true);
+
+		_callbackContext.sendPluginResult(progressResult);
 	}
 
 	public void onRequestPermissionResult(int requestCode, String[] permissions, int[] grantResults) throws JSONException {
