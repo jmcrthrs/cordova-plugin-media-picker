@@ -3,6 +3,12 @@ var exec = require('cordova/exec');
 // Refer to MediaPicker.java:136
 exports.ERROR_CANCELLED = 'Cancelled';
 
+exports.cleanUp = function (success, error) {
+	options = {};
+
+	exec(success, error, 'MediaPicker', 'cleanUp', [options]);
+}
+
 exports.getPictures = function (success, error, options) {
 	options = options || {};
 
