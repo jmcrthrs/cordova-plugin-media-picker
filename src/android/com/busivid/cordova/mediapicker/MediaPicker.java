@@ -10,6 +10,7 @@ import com.busivid.cordova.mediapicker.activities.MediaPickerActivity;
 
 import org.apache.cordova.CallbackContext;
 import org.apache.cordova.CordovaPlugin;
+import org.apache.cordova.LOG;
 import org.apache.cordova.PermissionHelper;
 import org.apache.cordova.PluginResult;
 import org.json.JSONArray;
@@ -26,164 +27,23 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MediaPicker extends CordovaPlugin {
-	public static String TAG = "MediaPicker";
 	private static final String EXTRA_MEDIA_OPTIONS = "extra_media_options";
+	private static final int REQUEST_CODE_GET_PICTURES = 1000;
+	public static String TAG = "MediaPicker";
 
-	private CallbackContext callbackContext;
-	private JSONObject params;
+	private JSONObject _args;
+	private CallbackContext _callbackContext;
 
-	private int REQUEST_CODE_GET_PICTURES = 1000;
+	private final String[] permissions = { Manifest.permission.WRITE_EXTERNAL_STORAGE };
 
-	String[] permissions = { Manifest.permission.WRITE_EXTERNAL_STORAGE };
+	private void cleanUp() {
+		String tmpPath = getStoragePath(false);
 
-	public boolean execute(String action, final JSONArray args, final CallbackContext callbackContext)
-			throws JSONException {
-		this.callbackContext = callbackContext;
-		this.params = args.getJSONObject(0);
-		if (action.equals("getPictures")) {
-			if (hasPermisssion()) {
-				getPictures();
-			} else {
-				PermissionHelper.requestPermissions(this, REQUEST_CODE_GET_PICTURES, permissions);
-			}
-			return true;
-		}
-
-		return false;
-	}
-
-	// Name getPictures to match cordova-plugin-camera.
-	private void getPictures() throws JSONException {
-		String mediaType = this.params.getString("mediaType");
-		Boolean includeImages = true;
-		Boolean includeVideos = true;
-
-		if (mediaType != null) {
-			includeImages = mediaType.equals("image");
-			includeVideos = mediaType.equals("video");
-		}
-
-		int maxImages = this.params.getInt("maxImages");
-
-		MediaOptions.Builder builder = new MediaOptions.Builder();
-		builder = builder.canSelectMultiPhoto(true).canSelectMultiVideo(true);
-
-		if (includeImages && includeVideos) {
-			builder = builder.canSelectBothPhotoVideo();
-		} else if (includeImages) {
-			builder = builder.selectPhoto();
-		} else if (includeVideos) {
-			builder = builder.selectVideo();
-		}
-
-		builder.setMaxImages(maxImages);
-
-		MediaOptions options = builder.build();
-
-		Context context = this.cordova.getActivity().getApplicationContext();
-		Intent intent = new Intent(context, MediaPickerActivity.class);
-		intent.putExtra(EXTRA_MEDIA_OPTIONS, options);
-		if (this.cordova != null) {
-			this.cordova.startActivityForResult((CordovaPlugin) this, intent, 0);
-		}
-	}
-
-	public void onRequestPermissionResult(int requestCode, String[] permissions, int[] grantResults)
-			throws JSONException {
-		PluginResult result;
-		if (callbackContext != null) {
-			for (int r : grantResults) {
-				if (r == PackageManager.PERMISSION_DENIED) {
-					result = new PluginResult(PluginResult.Status.ILLEGAL_ACCESS_EXCEPTION);
-					callbackContext.sendPluginResult(result);
-					return;
-				}
-			}
-
-			if (requestCode == REQUEST_CODE_GET_PICTURES) {
-				getPictures();
-			}
-		}
-	}
-
-	public boolean hasPermisssion() {
-		for (String p : permissions) {
-			if (!PermissionHelper.hasPermission(this, p)) {
-				return false;
-			}
-		}
-		return true;
-	}
-
-	public void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
-		final CallbackContext callbackContext = this.callbackContext;
-		final Context context = this.cordova.getActivity().getApplicationContext();
-		final JSONObject params = this.params;
-
-		new Thread(new Runnable() {
-			public void run() {
-				ArrayList<String> fileNames = new ArrayList<String>();
-				Boolean isTemporaryFile = params.optBoolean("isTemporaryFile", true);
-
-				switch (resultCode) {
-				case 0:
-					callbackContext.error("Cancelled");
-					break;
-
-				case -1:
-					List<MediaItem> mediaSelectedList = MediaPickerActivity.getMediaItemSelected(data);
-
-					for (int i = 0; i < mediaSelectedList.size(); i++) {
-						File inputFile = new File(mediaSelectedList.get(i).getPathOrigin(context).toString());
-						String ext = inputFile.getAbsolutePath().substring(inputFile.getAbsolutePath().lastIndexOf(".") + 1);
-
-						try {
-							File outputFile = getWritableFile(ext, isTemporaryFile);
-							copyFile(inputFile, outputFile);
-							fileNames.add(outputFile.getAbsolutePath());
-						} catch (Exception exception) {
-							callbackContext.error(exception.getMessage());
-							return;
-						}
-					}
-
-					JSONArray res = new JSONArray(fileNames);
-					callbackContext.success(res);
-					break;
-
-				default:
-					callbackContext.error(resultCode);
-					break;
-				}
-			}
-		}).start();
-
-		super.onActivityResult(requestCode, resultCode, data);
-	}
-
-	private File getWritableFile(String ext, Boolean isTemporaryPath) throws Exception {
-		File storageDirectory = isTemporaryPath
-			? cordova.getActivity().getCacheDir()
-			: cordova.getActivity().getApplicationContext().getFilesDir();
-
-		// Hack for Samsung Galaxy Camera 2
-		if (Build.MANUFACTURER.equals("samsung") && Build.MODEL.equals("EK-GC200") && new File("/storage/extSdCard/").canRead())
-			storageDirectory = new File("/storage/extSdCard/." + cordova.getActivity().getApplicationContext().getPackageName() + "/");
-
-		storageDirectory = new File(storageDirectory.getAbsolutePath() + "/mediapicker/");
-
-		// Create the storage directory if it doesn't exist
-		storageDirectory.mkdirs();
-
-		String dataPath = storageDirectory.getAbsolutePath();
-		File file;
-		for (int i = 0; i <= 99999; i++) {
-			file = new File(dataPath + String.format("/capture_%05d." + ext, i));
-			if (!file.exists())
-				return file;
-		}
-
-		throw new Exception("Unable to getWritableFile");
+		File tmpDir = new File(tmpPath);
+		for (File file : tmpDir.listFiles())
+			if (!file.isDirectory())
+				if (!file.delete())
+					LOG.d(TAG, "unable to delete: " + file.getAbsolutePath());
 	}
 
 	private void copyFile(File src, File dst) throws IOException {
@@ -200,6 +60,169 @@ public class MediaPicker extends CordovaPlugin {
 		} finally {
 			in.close();
 			out.close();
+		}
+	}
+
+	public boolean execute(String action, final JSONArray args, final CallbackContext callbackContext) throws JSONException {
+		_args = args.getJSONObject(0);
+		_callbackContext = callbackContext;
+
+		if (action.equals("cleanUp")) {
+			cleanUp();
+			callbackContext.success();
+			return true;
+		}
+
+		if (action.equals("getPictures")) {
+			if (hasPermission()) {
+				getPictures();
+			} else {
+				PermissionHelper.requestPermissions(this, REQUEST_CODE_GET_PICTURES, permissions);
+			}
+			return true;
+		}
+
+		return false;
+	}
+
+	// Name getPictures to match cordova-plugin-camera.
+	private void getPictures() throws JSONException {
+		final String mediaType = _args.getString("mediaType");
+
+		Boolean includeImages = true;
+		Boolean includeVideos = true;
+		if (mediaType != null) {
+			includeImages = mediaType.equals("image");
+			includeVideos = mediaType.equals("video");
+		}
+
+		int maxImages = _args.getInt("maxImages");
+
+		MediaOptions.Builder builder = new MediaOptions.Builder();
+		builder = builder.canSelectMultiPhoto(true).canSelectMultiVideo(true);
+
+		if (includeImages && includeVideos) {
+			builder = builder.canSelectBothPhotoVideo();
+		} else if (includeImages) {
+			builder = builder.selectPhoto();
+		} else if (includeVideos) {
+			builder = builder.selectVideo();
+		}
+
+		builder.setMaxImages(maxImages);
+
+		final MediaOptions options = builder.build();
+
+		final Context context = this.cordova.getActivity().getApplicationContext();
+		final Intent intent = new Intent(context, MediaPickerActivity.class);
+		intent.putExtra(EXTRA_MEDIA_OPTIONS, options);
+		if (this.cordova != null) {
+			this.cordova.startActivityForResult(this, intent, 0);
+		}
+	}
+
+	private String getStoragePath(Boolean isTemporaryPath) {
+		File storageDirectory = isTemporaryPath
+			? cordova.getActivity().getCacheDir()
+			: cordova.getActivity().getApplicationContext().getFilesDir();
+
+		// Hack for Samsung Galaxy Camera 2
+		if (Build.MANUFACTURER.equals("samsung") && Build.MODEL.equals("EK-GC200") && new File("/storage/extSdCard/").canRead())
+			storageDirectory = new File("/storage/extSdCard/." + cordova.getActivity().getApplicationContext().getPackageName() + "/");
+
+		storageDirectory = new File(storageDirectory.getAbsolutePath() + "/mediapicker/");
+
+		// Create the storage directory if it doesn't exist
+		//noinspection ResultOfMethodCallIgnored
+		storageDirectory.mkdirs();
+
+		return storageDirectory.getAbsolutePath();
+	}
+
+	private File getWritableFile(String ext, Boolean isTemporaryPath) throws Exception {
+		String dataPath = getStoragePath(isTemporaryPath);
+
+		File file;
+		for (int i = 0; i <= 99999; i++) {
+			file = new File(dataPath + String.format("/capture_%05d." + ext, i));
+			if (!file.exists())
+				return file;
+		}
+
+		throw new Exception("Unable to getWritableFile");
+	}
+
+	/**
+	 * Note: There is an unrelated incorrectly named function hasPermisssion in CordovaPlugin.
+	 */
+	private boolean hasPermission() {
+		for (String p : permissions)
+			if (!PermissionHelper.hasPermission(this, p))
+				return false;
+
+		return true;
+	}
+
+	public void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
+		final CallbackContext callbackContext = _callbackContext;
+		final Context context = this.cordova.getActivity().getApplicationContext();
+		final JSONObject params = _args;
+
+		new Thread(new Runnable() {
+			public void run() {
+				final ArrayList<String> fileNames = new ArrayList<String>();
+				final Boolean isTemporaryFile = params.optBoolean("isTemporaryFile", true);
+
+				switch (resultCode) {
+					case 0:
+						callbackContext.error("Cancelled");
+						break;
+
+					case -1:
+						final List<MediaItem> mediaSelectedList = MediaPickerActivity.getMediaItemSelected(data);
+
+						for (int i = 0; i < mediaSelectedList.size(); i++) {
+							File inputFile = new File(mediaSelectedList.get(i).getPathOrigin(context));
+							String ext = inputFile.getAbsolutePath().substring(inputFile.getAbsolutePath().lastIndexOf(".") + 1);
+
+							try {
+								File outputFile = getWritableFile(ext, isTemporaryFile);
+								copyFile(inputFile, outputFile);
+								fileNames.add(outputFile.getAbsolutePath());
+							} catch (Exception exception) {
+								callbackContext.error(exception.getMessage());
+								return;
+							}
+						}
+
+						final JSONArray res = new JSONArray(fileNames);
+						callbackContext.success(res);
+						break;
+
+					default:
+						callbackContext.error(resultCode);
+						break;
+				}
+			}
+		}).start();
+
+		super.onActivityResult(requestCode, resultCode, data);
+	}
+
+	public void onRequestPermissionResult(int requestCode, String[] permissions, int[] grantResults) throws JSONException {
+		PluginResult result;
+		if (_callbackContext != null) {
+			for (int r : grantResults) {
+				if (r == PackageManager.PERMISSION_DENIED) {
+					result = new PluginResult(PluginResult.Status.ILLEGAL_ACCESS_EXCEPTION);
+					_callbackContext.sendPluginResult(result);
+					return;
+				}
+			}
+
+			if (requestCode == REQUEST_CODE_GET_PICTURES) {
+				getPictures();
+			}
 		}
 	}
 }
