@@ -2,6 +2,7 @@ package com.busivid.cordova.mediapicker;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 import android.support.v4.widget.CursorAdapter;
 import android.view.View;
@@ -14,6 +15,7 @@ import com.busivid.cordova.mediapicker.imageloader.MediaImageLoader;
 import com.busivid.cordova.mediapicker.utils.MediaUtils;
 import com.busivid.cordova.mediapicker.widget.PickerImageView;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -55,10 +57,22 @@ public class MediaAdapter extends CursorAdapter implements RecyclerListener {
 		if (mMediaType == MediaItem.PHOTO) {
 			uri = MediaUtils.getPhotoUri(cursor);
 			path = MediaUtils.getRealImagePathFromURI(context.getContentResolver(), uri);
+
+			holder.imageView.label = "";
 			holder.thumbnail.setVisibility(View.GONE);
 		} else {
 			uri = MediaUtils.getVideoUri(cursor);
 			path = MediaUtils.getRealVideoPathFromURI(context.getContentResolver(), uri);
+
+			MediaMetadataRetriever mmr = new MediaMetadataRetriever();
+			mmr.setDataSource(path);
+
+			float durationMillis = Float.parseFloat(mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION));
+
+			SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
+			dateFormat.setTimeZone(java.util.TimeZone.getTimeZone("GMT"));
+
+			holder.imageView.label = dateFormat.format(durationMillis).replaceAll("^00:", "");
 			holder.thumbnail.setVisibility(View.VISIBLE);
 		}
 

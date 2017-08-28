@@ -12,9 +12,11 @@ import android.widget.ImageView;
  */
 public class PickerImageView extends ImageView {
 	private Paint paintBorder;
+	private Paint paintText;
 
 	private boolean isSelected;
 	private int borderSize = 1;
+	public String label;
 
 	public PickerImageView(Context context, AttributeSet attrs, int defStyle) {
 		super(context, attrs, defStyle);
@@ -27,10 +29,16 @@ public class PickerImageView extends ImageView {
 	}
 
 	private void init() {
+		borderSize = getResources().getDimensionPixelSize(getResources().getIdentifier("picker_border_size", "dimen", getContext().getPackageName()));
+
 		paintBorder = new Paint();
 		paintBorder.setAntiAlias(true);
 		paintBorder.setColor(getResources().getColor(getResources().getIdentifier("picker_color", "color", getContext().getPackageName())));
-		borderSize = getResources().getDimensionPixelSize(getResources().getIdentifier("picker_border_size", "dimen", getContext().getPackageName()));
+
+		paintText = new Paint();
+		paintText.setAntiAlias(true);
+		paintText.setColor(getResources().getColor(getResources().getIdentifier("picker_label_color", "color", getContext().getPackageName())));
+		paintText.setTextSize(60);
 	}
 
 	public PickerImageView(Context context) {
@@ -59,6 +67,19 @@ public class PickerImageView extends ImageView {
 	@Override
 	protected void onDraw(Canvas canvas) {
 		super.onDraw(canvas);
+
+		String text = label == null
+			? ""
+			: label.trim();
+
+		if (text.length() > 0) {
+			final float textWidth = paintText.measureText(text);
+
+			final float textX = getWidth() - borderSize - textWidth - 8;
+			final float textY = getHeight() - borderSize - 10;
+			canvas.drawText(text, textX, textY, paintText);
+		}
+
 		if (isSelected) {
 			canvas.drawRect(0, 0, borderSize, getHeight(), paintBorder);
 			canvas.drawRect(getWidth() - borderSize, 0, getWidth(), getHeight(), paintBorder);
