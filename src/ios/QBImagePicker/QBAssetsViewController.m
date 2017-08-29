@@ -36,7 +36,7 @@ static CGSize CGSizeScale(CGSize size, CGFloat scale) {
 {
     NSArray *allLayoutAttributes = [self.collectionViewLayout layoutAttributesForElementsInRect:rect];
     if (allLayoutAttributes.count == 0) { return nil; }
-    
+
     NSMutableArray *indexPaths = [NSMutableArray arrayWithCapacity:allLayoutAttributes.count];
     for (UICollectionViewLayoutAttributes *layoutAttributes in allLayoutAttributes) {
         NSIndexPath *indexPath = layoutAttributes.indexPath;
@@ -63,7 +63,7 @@ static CGSize CGSizeScale(CGSize size, CGFloat scale) {
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-    
+
     [self setUpToolbarItems];
     [self resetCachedAssets];
 }
@@ -71,21 +71,21 @@ static CGSize CGSizeScale(CGSize size, CGFloat scale) {
 - (void)viewWillAppear:(BOOL)animated
 {
     [super viewWillAppear:animated];
-    
+
     // Configure navigation item
     self.navigationItem.title = self.assetCollection.localizedTitle;
     self.navigationItem.prompt = self.imagePickerController.prompt;
-    
+
     // Show/hide 'Done' button
     if (self.imagePickerController.allowsMultipleSelection) {
         [self.navigationItem setRightBarButtonItem:self.doneButton animated:NO];
     } else {
         [self.navigationItem setRightBarButtonItem:nil animated:NO];
     }
-    
+
     [self updateDoneButtonState];
     [self updateSelectionInfo];
-	
+
 	// Register observer
 	[[PHPhotoLibrary sharedPhotoLibrary] registerChangeObserver:self];
 }
@@ -93,7 +93,7 @@ static CGSize CGSizeScale(CGSize size, CGFloat scale) {
 - (void)viewWillDisappear:(BOOL)animated
 {
     [super viewWillDisappear:animated];
-	
+
 	// Deregister observer
 	[[PHPhotoLibrary sharedPhotoLibrary] unregisterChangeObserver:self];
 }
@@ -110,7 +110,7 @@ static CGSize CGSizeScale(CGSize size, CGFloat scale) {
 - (void)setAssetCollection:(PHAssetCollection *)assetCollection
 {
     _assetCollection = assetCollection;
-    
+
     [self updateFetchRequest];
     [self.collectionView reloadData];
 }
@@ -120,7 +120,7 @@ static CGSize CGSizeScale(CGSize size, CGFloat scale) {
     if (_imageManager == nil) {
         _imageManager = [PHCachingImageManager new];
     }
-    
+
     return _imageManager;
 }
 
@@ -134,7 +134,6 @@ static CGSize CGSizeScale(CGSize size, CGFloat scale) {
     }
 }
 
-
 #pragma mark - Toolbar
 
 - (void)setUpToolbarItems
@@ -142,21 +141,21 @@ static CGSize CGSizeScale(CGSize size, CGFloat scale) {
     // Space
     UIBarButtonItem *leftSpace = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace target:nil action:NULL];
     UIBarButtonItem *rightSpace = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace target:nil action:NULL];
-    
+
     // Info label
     NSDictionary *attributes = @{ NSForegroundColorAttributeName: [UIColor blackColor] };
     UIBarButtonItem *infoButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"" style:UIBarButtonItemStylePlain target:nil action:NULL];
     infoButtonItem.enabled = NO;
     [infoButtonItem setTitleTextAttributes:attributes forState:UIControlStateNormal];
     [infoButtonItem setTitleTextAttributes:attributes forState:UIControlStateDisabled];
-    
+
     self.toolbarItems = @[leftSpace, infoButtonItem, rightSpace];
 }
 
 - (void)updateSelectionInfo
 {
     NSMutableOrderedSet *selectedItems = self.imagePickerController.selectedItems;
-    
+
     if (selectedItems.count > 0) {
         NSBundle *bundle = self.imagePickerController.assetBundle;
         NSString *format;
@@ -165,14 +164,13 @@ static CGSize CGSizeScale(CGSize size, CGFloat scale) {
         } else {
             format = NSLocalizedStringFromTableInBundle(@"assets.toolbar.item-selected", @"QBImagePicker", bundle, nil);
         }
-        
+
         NSString *title = [NSString stringWithFormat:format, selectedItems.count];
         [(UIBarButtonItem *)self.toolbarItems[1] setTitle:title];
     } else {
         [(UIBarButtonItem *)self.toolbarItems[1] setTitle:@""];
     }
 }
-
 
 #pragma mark - Fetching Assets
 
@@ -185,15 +183,15 @@ static CGSize CGSizeScale(CGSize size, CGFloat scale) {
             case QBImagePickerMediaTypeImage:
                 mediaTypePredicate = [NSPredicate predicateWithFormat:@"mediaType == %ld", PHAssetMediaTypeImage];
                 break;
-                
+
             case QBImagePickerMediaTypeVideo:
                 mediaTypePredicate = [NSPredicate predicateWithFormat:@"mediaType == %ld", PHAssetMediaTypeVideo];
                 break;
-                
+
             default:
                 break;
         }
-        
+
         NSPredicate *mediaSubTypePredicate;
         if (self.imagePickerController.assetMediaSubtypes)
         {
@@ -212,9 +210,9 @@ static CGSize CGSizeScale(CGSize size, CGFloat scale) {
         {
             options.predicate = [NSCompoundPredicate andPredicateWithSubpredicates:predicates];
         }
-        
+
         self.fetchResult = [PHAsset fetchAssetsInAssetCollection:self.assetCollection options:options];
-        
+
         if ([self isAutoDeselectEnabled] && self.imagePickerController.selectedItems.count > 0) {
             // Get index of previous selected asset
             PHAsset *asset = [self.imagePickerController.selectedItems firstObject];
@@ -225,7 +223,6 @@ static CGSize CGSizeScale(CGSize size, CGFloat scale) {
         self.fetchResult = nil;
     }
 }
-
 
 #pragma mark - Checking for Selection Limit
 
@@ -246,19 +243,19 @@ static CGSize CGSizeScale(CGSize size, CGFloat scale) {
 {
     BOOL isViewVisible = [self isViewLoaded] && self.view.window != nil;
     if (!isViewVisible) { return; }
-    
+
     // The preheat window is twice the height of the visible rect
     CGRect preheatRect = self.collectionView.bounds;
     preheatRect = CGRectInset(preheatRect, 0.0, -0.5 * CGRectGetHeight(preheatRect));
-    
+
     // If scrolled by a "reasonable" amount...
     CGFloat delta = ABS(CGRectGetMidY(preheatRect) - CGRectGetMidY(self.previousPreheatRect));
-    
+
     if (delta > CGRectGetHeight(self.collectionView.bounds) / 3.0) {
         // Compute the assets to start caching and to stop caching
         NSMutableArray *addedIndexPaths = [NSMutableArray array];
         NSMutableArray *removedIndexPaths = [NSMutableArray array];
-        
+
         [self computeDifferenceBetweenRect:self.previousPreheatRect andRect:preheatRect addedHandler:^(CGRect addedRect) {
             NSArray *indexPaths = [self.collectionView qb_indexPathsForElementsInRect:addedRect];
             [addedIndexPaths addObjectsFromArray:indexPaths];
@@ -266,13 +263,13 @@ static CGSize CGSizeScale(CGSize size, CGFloat scale) {
             NSArray *indexPaths = [self.collectionView qb_indexPathsForElementsInRect:removedRect];
             [removedIndexPaths addObjectsFromArray:indexPaths];
         }];
-        
+
         NSArray *assetsToStartCaching = [self assetsAtIndexPaths:addedIndexPaths];
         NSArray *assetsToStopCaching = [self assetsAtIndexPaths:removedIndexPaths];
-        
+
         CGSize itemSize = [(UICollectionViewFlowLayout *)self.collectionViewLayout itemSize];
         CGSize targetSize = CGSizeScale(itemSize, [[UIScreen mainScreen] scale]);
-        
+
         [self.imageManager startCachingImagesForAssets:assetsToStartCaching
                                             targetSize:targetSize
                                            contentMode:PHImageContentModeAspectFill
@@ -281,7 +278,7 @@ static CGSize CGSizeScale(CGSize size, CGFloat scale) {
                                            targetSize:targetSize
                                           contentMode:PHImageContentModeAspectFill
                                               options:nil];
-        
+
         self.previousPreheatRect = preheatRect;
     }
 }
@@ -293,7 +290,7 @@ static CGSize CGSizeScale(CGSize size, CGFloat scale) {
         CGFloat oldMinY = CGRectGetMinY(oldRect);
         CGFloat newMaxY = CGRectGetMaxY(newRect);
         CGFloat newMinY = CGRectGetMinY(newRect);
-        
+
         if (newMaxY > oldMaxY) {
             CGRect rectToAdd = CGRectMake(newRect.origin.x, oldMaxY, newRect.size.width, (newMaxY - oldMaxY));
             addedHandler(rectToAdd);
@@ -319,7 +316,7 @@ static CGSize CGSizeScale(CGSize size, CGFloat scale) {
 - (NSArray *)assetsAtIndexPaths:(NSArray *)indexPaths
 {
     if (indexPaths.count == 0) { return nil; }
-    
+
     NSMutableArray *assets = [NSMutableArray arrayWithCapacity:indexPaths.count];
     for (NSIndexPath *indexPath in indexPaths) {
         if (indexPath.item < self.fetchResult.count) {
@@ -330,18 +327,17 @@ static CGSize CGSizeScale(CGSize size, CGFloat scale) {
     return assets;
 }
 
-
 #pragma mark - PHPhotoLibraryChangeObserver
 
 - (void)photoLibraryDidChange:(PHChange *)changeInstance
 {
     dispatch_async(dispatch_get_main_queue(), ^{
         PHFetchResultChangeDetails *collectionChanges = [changeInstance changeDetailsForFetchResult:self.fetchResult];
-        
+
         if (collectionChanges) {
             // Get the new fetch result
             self.fetchResult = [collectionChanges fetchResultAfterChanges];
-            
+
             if (![collectionChanges hasIncrementalChanges] || [collectionChanges hasMoves]) {
                 // We need to reload all if the incremental diffs are not available
                 [self.collectionView reloadData];
@@ -352,19 +348,19 @@ static CGSize CGSizeScale(CGSize size, CGFloat scale) {
                     if ([removedIndexes count]) {
                         [self.collectionView deleteItemsAtIndexPaths:[removedIndexes qb_indexPathsFromIndexesWithSection:0]];
                     }
-                    
+
                     NSIndexSet *insertedIndexes = [collectionChanges insertedIndexes];
                     if ([insertedIndexes count]) {
                         [self.collectionView insertItemsAtIndexPaths:[insertedIndexes qb_indexPathsFromIndexesWithSection:0]];
                     }
-                    
+
                     NSIndexSet *changedIndexes = [collectionChanges changedIndexes];
                     if ([changedIndexes count]) {
                         [self.collectionView reloadItemsAtIndexPaths:[changedIndexes qb_indexPathsFromIndexesWithSection:0]];
                     }
                 } completion:NULL];
             }
-            
+
             [self resetCachedAssets];
         }
     });
@@ -387,7 +383,7 @@ static CGSize CGSizeScale(CGSize size, CGFloat scale) {
 	PHAsset *asset = (PHAsset *)item;
 	CGSize itemSize = [(UICollectionViewFlowLayout *)self.collectionView.collectionViewLayout itemSize];
 	CGSize targetSize = CGSizeScale(itemSize, [[UIScreen mainScreen] scale]);
-	
+
 	[self.imageManager requestImageForAsset:asset
 								 targetSize:targetSize
 								contentMode:PHImageContentModeAspectFill
@@ -436,7 +432,6 @@ static CGSize CGSizeScale(CGSize size, CGFloat scale) {
 	[self updateCachedAssets];
 }
 
-
 #pragma mark - UICollectionViewDataSource
 
 - (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section
@@ -450,14 +445,14 @@ static CGSize CGSizeScale(CGSize size, CGFloat scale) {
         UICollectionReusableView *footerView = [collectionView dequeueReusableSupplementaryViewOfKind:UICollectionElementKindSectionFooter
                                                                                   withReuseIdentifier:@"FooterView"
                                                                                          forIndexPath:indexPath];
-        
+
         // Number of assets
         UILabel *label = (UILabel *)[footerView viewWithTag:1];
-        
+
         NSBundle *bundle = self.imagePickerController.assetBundle;
 		NSUInteger numberOfPhotos = [self numberOfImages];
 		NSUInteger numberOfVideos = [self numberOfVideos];
-		
+
         switch (self.imagePickerController.mediaType) {
             case QBImagePickerMediaTypeAny:
             {
@@ -473,34 +468,34 @@ static CGSize CGSizeScale(CGSize size, CGFloat scale) {
                 } else {
                     format = NSLocalizedStringFromTableInBundle(@"assets.footer.photos-and-videos", @"QBImagePicker", bundle, nil);
                 }
-                
+
                 label.text = [NSString stringWithFormat:format, numberOfPhotos, numberOfVideos];
             }
                 break;
-                
+
             case QBImagePickerMediaTypeImage:
             {
                 NSString *key = (numberOfPhotos == 1) ? @"assets.footer.photo" : @"assets.footer.photos";
                 NSString *format = NSLocalizedStringFromTableInBundle(key, @"QBImagePicker", bundle, nil);
-                
+
                 label.text = [NSString stringWithFormat:format, numberOfPhotos];
             }
                 break;
-                
+
             case QBImagePickerMediaTypeVideo:
             {
                 NSString *key = (numberOfVideos == 1) ? @"assets.footer.video" : @"assets.footer.videos";
                 NSString *format = NSLocalizedStringFromTableInBundle(key, @"QBImagePicker", bundle, nil);
-                
+
                 label.text = [NSString stringWithFormat:format, numberOfVideos];
             }
                 break;
-                
+
         }
-        
+
         return footerView;
     }
-    
+
     return nil;
 }
 
@@ -509,14 +504,14 @@ static CGSize CGSizeScale(CGSize size, CGFloat scale) {
 - (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath
 {
 	[super collectionView:collectionView didSelectItemAtIndexPath:indexPath];
-	
+
 	if (self.imagePickerController.allowsMultipleSelection)
 	{
 		[self updateDoneButtonState];
-		
+
 		if (self.imagePickerController.showsNumberOfSelectedItems) {
 			[self updateSelectionInfo];
-			
+
 			if (self.imagePickerController.selectedItems.count == 1) {
 				// Show toolbar
 				[self.navigationController setToolbarHidden:NO animated:YES];
@@ -531,12 +526,12 @@ static CGSize CGSizeScale(CGSize size, CGFloat scale) {
 
     if (!self.imagePickerController.allowsMultipleSelection)
         return;
-    
+
     [self updateDoneButtonState];
-    
+
     if (self.imagePickerController.showsNumberOfSelectedItems) {
         [self updateSelectionInfo];
-        
+
         if (self.imagePickerController.selectedItems.count == 0) {
             // Hide toolbar
             [self.navigationController setToolbarHidden:YES animated:YES];

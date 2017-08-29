@@ -32,7 +32,7 @@ static NSString * const reuseIdentifier = @"QBItemCell";
 - (void)viewWillAppear:(BOOL)animated
 {
 	[super viewWillAppear:animated];
-	
+
 	// Configure collection view
 	self.collectionView.allowsMultipleSelection = self.imagePickerController.allowsMultipleSelection;
 
@@ -42,7 +42,7 @@ static NSString * const reuseIdentifier = @"QBItemCell";
 - (void)viewDidLayoutSubviews
 {
 	[super viewDidLayoutSubviews];
-	
+
 	if (!self.disableScrollToBottom)
 	{
 		self.disableScrollToBottom = YES;
@@ -61,10 +61,10 @@ static NSString * const reuseIdentifier = @"QBItemCell";
 {
 	// Save indexPath for the last item
 	NSIndexPath *indexPath = [[self.collectionView indexPathsForVisibleItems] lastObject];
-	
+
 	// Update layout
 	[self.collectionViewLayout invalidateLayout];
-	
+
 	// Restore scroll position
 	[coordinator animateAlongsideTransition:nil completion:^(id<UIViewControllerTransitionCoordinatorContext> context) {
 		[self.collectionView scrollToItemAtIndexPath:indexPath atScrollPosition:UICollectionViewScrollPositionBottom animated:NO];
@@ -78,7 +78,7 @@ static NSString * const reuseIdentifier = @"QBItemCell";
 	QBItemCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:@"QBItemCell" forIndexPath:indexPath];
 	cell.tag = indexPath.item;
 	cell.showsOverlayViewWhenSelected = self.imagePickerController.allowsMultipleSelection;
-	
+
 	NSObject *item = [self objectForItemAtIndex:indexPath.item];
 
 	UIImage *image = [self thumbnailForItem:item];
@@ -89,7 +89,7 @@ static NSString * const reuseIdentifier = @"QBItemCell";
 	}
 	cell.videoIndicatorView.hidden = !([self showsVideoIconForItem:item]
 									   || [self showsSlowMoIconForItem:item]);
-	
+
 	if (!cell.videoIndicatorView.hidden)
 	{
 		NSTimeInterval duration = [self durationForItem:item];
@@ -100,12 +100,12 @@ static NSString * const reuseIdentifier = @"QBItemCell";
 		NSInteger seconds = (NSInteger)ceil(duration - 60.0 * (double)minutes);
 		cell.videoIndicatorView.timeLabel.text = [NSString stringWithFormat:@"%02ld:%02ld", (long)minutes, (long)seconds];
 	}
-	
+
 	BOOL selected = [self.imagePickerController.selectedItems containsObject:item];
 	[cell setSelected:selected];
 	if (selected)
 		[collectionView selectItemAtIndexPath:indexPath animated:NO scrollPosition:UICollectionViewScrollPositionNone];
-	
+
 	return cell;
 }
 
@@ -116,34 +116,34 @@ static NSString * const reuseIdentifier = @"QBItemCell";
 	NSObject *item = [self objectForItemAtIndex:indexPath.item];
 	if ([self.imagePickerController.delegate respondsToSelector:@selector(qb_imagePickerController:shouldSelectItem:)])
 		return [self.imagePickerController.delegate qb_imagePickerController:self.imagePickerController shouldSelectItem:item];
-	
+
 	if ([self isAutoDeselectEnabled]) {
 		return YES;
 	}
-	
+
 	return ![self isMaximumSelectionLimitReached];
 }
 
 - (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath
-{	
+{
 	QBImagePickerController *imagePickerController = self.imagePickerController;
 	NSMutableOrderedSet *selectedItems = imagePickerController.selectedItems;
-	
+
 	NSObject *item = [self objectForItemAtIndex:indexPath.item];
 	if (imagePickerController.allowsMultipleSelection) {
 		if ([self isAutoDeselectEnabled] && selectedItems.count > 0) {
 			// Remove previous selected item from set
 			[selectedItems removeObjectAtIndex:0];
-			
+
 			// Deselect previous selected item
 			if (self.lastSelectedItemIndexPath) {
 				[collectionView deselectItemAtIndexPath:self.lastSelectedItemIndexPath animated:NO];
 			}
 		}
-		
+
 		// Add item to set
 		[selectedItems addObject:item];
-		
+
 		self.lastSelectedItemIndexPath = indexPath;
 	}
 	else
@@ -151,7 +151,7 @@ static NSString * const reuseIdentifier = @"QBItemCell";
 		if ([imagePickerController.delegate respondsToSelector:@selector(qb_imagePickerController:didFinishPickingItems:)])
 			[imagePickerController.delegate qb_imagePickerController:imagePickerController didFinishPickingItems:@[item]];
 	}
-	
+
 	if ([imagePickerController.delegate respondsToSelector:@selector(qb_imagePickerController:didSelectItem:)])
 		[imagePickerController.delegate qb_imagePickerController:imagePickerController didSelectItem:item];
 }
@@ -160,15 +160,15 @@ static NSString * const reuseIdentifier = @"QBItemCell";
 {
 	if (!self.imagePickerController.allowsMultipleSelection)
 		return;
-	
+
 	QBImagePickerController *imagePickerController = self.imagePickerController;
 	NSMutableOrderedSet *selectedItems = imagePickerController.selectedItems;
-	
+
 	NSObject *item = [self objectForItemAtIndex:indexPath.item];
-	
+
 	// Remove asset from set
 	[selectedItems removeObject:item];
-	
+
 	self.lastSelectedItemIndexPath = nil;
 
 	if ([imagePickerController.delegate respondsToSelector:@selector(qb_imagePickerController:didDeselectItem:)]) {
@@ -186,9 +186,9 @@ static NSString * const reuseIdentifier = @"QBItemCell";
 	} else {
 		numberOfColumns = self.imagePickerController.numberOfColumnsInLandscape;
 	}
-	
+
 	CGFloat width = (CGRectGetWidth(self.view.frame) - 2.0 * (numberOfColumns - 1)) / numberOfColumns;
-	
+
 	return CGSizeMake(width, width);
 }
 
@@ -208,11 +208,11 @@ static NSString * const reuseIdentifier = @"QBItemCell";
 - (BOOL)isMaximumSelectionLimitReached
 {
 	NSUInteger minimumNumberOfSelection = MAX(1, self.imagePickerController.minimumNumberOfSelection);
-	
+
 	if (minimumNumberOfSelection <= self.imagePickerController.maximumNumberOfSelection) {
 		return (self.imagePickerController.maximumNumberOfSelection <= self.imagePickerController.selectedItems.count);
 	}
-	
+
 	return NO;
 }
 

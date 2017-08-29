@@ -24,7 +24,7 @@
 - (instancetype)init
 {
     self = [super init];
-    
+
     if (self) {
         // Set default values
         self.assetCollectionSubtypes = @[
@@ -38,26 +38,26 @@
         self.numberOfColumnsInPortrait = 4;
         self.numberOfColumnsInLandscape = 7;
         self.excludeEmptyAlbums = YES;
-        
+
         _selectedItems = [NSMutableOrderedSet orderedSet];
     }
-    
+
     return self;
 }
 
 - (void)viewDidLoad
 {
 	[super viewDidLoad];
-	
+
 	// default navigation route: Nav VC --> Root VC (Albums) --> Assets
 	UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@"QBImagePicker" bundle:self.assetBundle];
 	self.albumsNavigationController = [storyboard instantiateViewControllerWithIdentifier:@"QBAlbumsNavigationController"];;
-	
+
 	[self addChildViewController:self.albumsNavigationController];
 	self.albumsNavigationController.view.frame = self.view.bounds;
 	[self.view addSubview:self.albumsNavigationController.view];
 	[self.albumsNavigationController didMoveToParentViewController:self];
-	
+
 	// Set instance
 	QBAlbumsViewController *albumsViewController = (QBAlbumsViewController *)self.albumsNavigationController.topViewController;
 	albumsViewController.imagePickerController = self;

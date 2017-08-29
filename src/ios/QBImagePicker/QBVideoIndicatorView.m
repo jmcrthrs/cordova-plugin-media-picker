@@ -40,19 +40,19 @@
 {
 	// Add gradient layer
 	gradientLayer = [CAGradientLayer layer];
-	
+
 	gradientLayer.colors = @[
 							 (__bridge id)[[UIColor clearColor] CGColor],
 							 (__bridge id)[[UIColor blackColor] CGColor]
 							 ];
-	
+
 	[self.layer insertSublayer:gradientLayer atIndex:0];
 }
 
 - (void)layoutSubviews
 {
 	[super layoutSubviews];
-	
+
 	gradientLayer.frame = self.bounds;
 }
 
