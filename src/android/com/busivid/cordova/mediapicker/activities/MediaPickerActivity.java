@@ -194,7 +194,7 @@ public class MediaPickerActivity extends AppCompatActivity implements MediaSelec
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		int i = item.getItemId();
-		if (i == getResources().getIdentifier("home", "id", getPackageName())) {
+		if (i == android.R.id.home) {
 			finish();
 		} else if (i == getResources().getIdentifier("take_photo", "id", getPackageName())) {
 			takePhoto();
