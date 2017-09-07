@@ -30,6 +30,7 @@ public class MediaPicker extends CordovaPlugin {
 	private static final String ERROR_CANCELLED = "CANCELLED";
 	private static final String EXTRA_MEDIA_OPTIONS = "extra_media_options";
 	private static final int REQUEST_CODE_GET_PICTURES = 1000;
+	private static final int REQUEST_CODE_GET_PICTURES_PERMISSIONS = 1001;
 	private static final String PROGRESS_MEDIA_IMPORTED = "MEDIA_IMPORTED";
 	private static final String PROGRESS_MEDIA_IMPORTING = "MEDIA_IMPORTING";
 	public static String TAG = "MediaPicker";
@@ -70,6 +71,10 @@ public class MediaPicker extends CordovaPlugin {
 		_args = args.getJSONObject(0);
 		_callbackContext = callbackContext;
 
+		if (_args == null) {
+			LOG.d(TAG, "unable to do something");
+		}
+
 		if (action.equals("cleanUp")) {
 			cleanUp();
 			callbackContext.success();
@@ -80,7 +85,7 @@ public class MediaPicker extends CordovaPlugin {
 			if (hasPermission()) {
 				getPictures();
 			} else {
-				PermissionHelper.requestPermissions(this, REQUEST_CODE_GET_PICTURES, permissions);
+				PermissionHelper.requestPermissions(this, REQUEST_CODE_GET_PICTURES_PERMISSIONS, permissions);
 			}
 			return true;
 		}
@@ -120,7 +125,7 @@ public class MediaPicker extends CordovaPlugin {
 		final Intent intent = new Intent(context, MediaPickerActivity.class);
 		intent.putExtra(EXTRA_MEDIA_OPTIONS, options);
 		if (this.cordova != null) {
-			this.cordova.startActivityForResult(this, intent, 0);
+			this.cordova.startActivityForResult(this, intent, REQUEST_CODE_GET_PICTURES);
 		}
 	}
 
@@ -167,50 +172,53 @@ public class MediaPicker extends CordovaPlugin {
 	}
 
 	public void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
-		final CallbackContext callbackContext = _callbackContext;
-		final Context context = this.cordova.getActivity().getApplicationContext();
-		final JSONObject params = _args;
 
-		new Thread(new Runnable() {
-			public void run() {
-				final ArrayList<String> fileNames = new ArrayList<String>();
-				final Boolean isTemporaryFile = params.optBoolean("isTemporaryFile", true);
+		if (requestCode == REQUEST_CODE_GET_PICTURES && _args != null) {
+			final CallbackContext callbackContext = _callbackContext;
+			final Context context = this.cordova.getActivity().getApplicationContext();
+			final JSONObject params = _args;
 
-				switch (resultCode) {
-					case 0:
-						callbackContext.error(ERROR_CANCELLED);
-						break;
+			new Thread(new Runnable() {
+				public void run() {
+					final ArrayList<String> fileNames = new ArrayList<String>();
+					final Boolean isTemporaryFile = params.optBoolean("isTemporaryFile", true);
 
-					case -1:
-						final List<MediaItem> mediaSelectedList = MediaPickerActivity.getMediaItemSelected(data);
+					switch (resultCode) {
+						case 0:
+							callbackContext.error(ERROR_CANCELLED);
+							break;
 
-						onMediaImporting(mediaSelectedList.size());
+						case -1:
+							final List<MediaItem> mediaSelectedList = MediaPickerActivity.getMediaItemSelected(data);
 
-						for (int i = 0; i < mediaSelectedList.size(); i++) {
-							File inputFile = new File(mediaSelectedList.get(i).getPathOrigin(context));
-							String ext = inputFile.getAbsolutePath().substring(inputFile.getAbsolutePath().lastIndexOf(".") + 1);
+							onMediaImporting(mediaSelectedList.size());
 
-							try {
-								File outputFile = getWritableFile(ext, isTemporaryFile);
-								copyFile(inputFile, outputFile);
-								fileNames.add(outputFile.getAbsolutePath());
-								onMediaImported(outputFile.getAbsolutePath());
-							} catch (Exception exception) {
-								callbackContext.error(exception.getMessage());
-								return;
+							for (int i = 0; i < mediaSelectedList.size(); i++) {
+								File inputFile = new File(mediaSelectedList.get(i).getPathOrigin(context));
+								String ext = inputFile.getAbsolutePath().substring(inputFile.getAbsolutePath().lastIndexOf(".") + 1);
+
+								try {
+									File outputFile = getWritableFile(ext, isTemporaryFile);
+									copyFile(inputFile, outputFile);
+									fileNames.add(outputFile.getAbsolutePath());
+									onMediaImported(outputFile.getAbsolutePath());
+								} catch (Exception exception) {
+									callbackContext.error(exception.getMessage());
+									return;
+								}
 							}
-						}
 
-						final JSONArray res = new JSONArray(fileNames);
-						callbackContext.success(res);
-						break;
+							final JSONArray res = new JSONArray(fileNames);
+							callbackContext.success(res);
+							break;
 
-					default:
-						callbackContext.error(resultCode);
-						break;
+						default:
+							callbackContext.error(resultCode);
+							break;
+					}
 				}
-			}
-		}).start();
+			}).start();
+		}
 
 		super.onActivityResult(requestCode, resultCode, data);
 	}
@@ -256,7 +264,7 @@ public class MediaPicker extends CordovaPlugin {
 				}
 			}
 
-			if (requestCode == REQUEST_CODE_GET_PICTURES) {
+			if (requestCode == REQUEST_CODE_GET_PICTURES_PERMISSIONS) {
 				getPictures();
 			}
 		}
