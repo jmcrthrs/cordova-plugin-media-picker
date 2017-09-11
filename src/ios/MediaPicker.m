@@ -264,5 +264,31 @@
     [pluginResult setKeepCallbackAsBool:true];
     [self.commandDelegate sendPluginResult:pluginResult callbackId: self.callbackId];
 }
+
+- (void) requestPermission:(CDVInvokedUrlCommand *)command {
+    self.callbackId = command.callbackId;
+    self.options = [command.arguments objectAtIndex: 0];
+
+    [self.commandDelegate runInBackground:^{
+        [PHPhotoLibrary requestAuthorization:^(PHAuthorizationStatus status) {
+            switch (status)
+            {
+                case PHAuthorizationStatusAuthorized:
+                    break;
+
+                case PHAuthorizationStatusRestricted:
+                case PHAuthorizationStatusDenied:
+                {
+                    CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"Please give this app permission to access your photo library in your phone settings!"];
+                    [self.commandDelegate sendPluginResult:pluginResult callbackId:self.callbackId];
+                    break;
+                }
+
+                default:
+                    break;
+            }
+        }];
+    }];
+}
 @end
 

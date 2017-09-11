@@ -90,6 +90,13 @@ public class MediaPicker extends CordovaPlugin {
 			return true;
 		}
 
+		if (action.equals("requestPermission")) {
+			if (!hasPermission())
+				PermissionHelper.requestPermissions(this, REQUEST_CODE_GET_PICTURES_PERMISSIONS, permissions);
+
+			return true;
+		}
+
 		return false;
 	}
 

@@ -5,5 +5,6 @@
 
 - (void)cleanUp:(CDVInvokedUrlCommand *)command;
 - (void)getPictures:(CDVInvokedUrlCommand *)command;
+- (void)requestPermission:(CDVInvokedUrlCommand *)command;
 
 @end
