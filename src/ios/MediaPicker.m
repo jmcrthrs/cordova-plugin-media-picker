@@ -43,6 +43,12 @@
     [self.commandDelegate sendPluginResult:[CDVPluginResult resultWithStatus:CDVCommandStatus_OK] callbackId:self.callbackId];
 }
 
+- (void) didFinishImagesWithResult: (CDVPluginResult *)pluginResult
+{
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:self.callbackId];
+    self.callbackId = nil;
+}
+
 - (void) getPictures:(CDVInvokedUrlCommand *)command {
     self.callbackId = command.callbackId;
     self.options = [command.arguments objectAtIndex: 0];
@@ -112,7 +118,7 @@
     }];
 }
 
-- (NSString*)getStoragePath:(BOOL)isTemporaryStorage {
+- (NSString*) getStoragePath:(BOOL)isTemporaryStorage {
     NSString* docsPath;
     if (isTemporaryStorage)
     {
@@ -132,7 +138,7 @@
     return docsPath;
 }
 
-- (NSString*)getWritableFile:(NSString*)extension isTemporaryStorage:(BOOL)isTemporaryStorage
+- (NSString*) getWritableFile:(NSString*)extension isTemporaryStorage:(BOOL)isTemporaryStorage
 {
 
     NSString *docsPath = [self getStoragePath:isTemporaryStorage];
@@ -150,8 +156,28 @@
     return nil;
 }
 
+- (void) onMediaImporting:(NSNumber*)count {
+    NSMutableDictionary *result = [NSMutableDictionary dictionary];
+    [result setObject:count forKey:@"data"];
+    [result setObject:PROGRESS_MEDIA_IMPORTING forKey:@"type"];
+
+    CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:result];
+    [pluginResult setKeepCallbackAsBool:true];
+    [self.commandDelegate sendPluginResult:pluginResult callbackId: self.callbackId];
+}
+
+- (void) onMediaImported:(NSString*)filePath {
+    NSMutableDictionary *result = [NSMutableDictionary dictionary];
+    [result setObject:filePath forKey:@"data"];
+    [result setObject:PROGRESS_MEDIA_IMPORTED forKey:@"type"];
+
+    CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:result];
+    [pluginResult setKeepCallbackAsBool:true];
+    [self.commandDelegate sendPluginResult:pluginResult callbackId: self.callbackId];
+}
+
 #pragma mark - QBImagePickerControllerDelegate
-- (void)qb_imagePickerController:(QBImagePickerController *)imagePickerController didFinishPickingItems:(NSArray *)assets
+- (void) qb_imagePickerController:(QBImagePickerController *)imagePickerController didFinishPickingItems:(NSArray *)assets
 {
     NSLog(@"Selected assets:");
     NSLog(@"%@", assets);
@@ -229,13 +255,7 @@
     [weakSelf.viewController dismissViewControllerAnimated:YES completion:NULL];
 }
 
-- (void) didFinishImagesWithResult: (CDVPluginResult *)pluginResult
-{
-    [self.commandDelegate sendPluginResult:pluginResult callbackId:self.callbackId];
-    self.callbackId = nil;
-}
-
-- (void)qb_imagePickerControllerDidCancel:(QBImagePickerController *)imagePickerController
+- (void) qb_imagePickerControllerDidCancel:(QBImagePickerController *)imagePickerController
 {
     CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"CANCELLED"];
     [self.commandDelegate sendPluginResult:pluginResult callbackId:self.callbackId];
@@ -243,26 +263,6 @@
 
     __weak MediaPicker* weakSelf = self;
     [weakSelf.viewController dismissViewControllerAnimated:YES completion:NULL];
-}
-
-- (void)onMediaImporting:(NSNumber*)count {
-    NSMutableDictionary *result = [NSMutableDictionary dictionary];
-    [result setObject:count forKey:@"data"];
-    [result setObject:PROGRESS_MEDIA_IMPORTING forKey:@"type"];
-
-    CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:result];
-    [pluginResult setKeepCallbackAsBool:true];
-    [self.commandDelegate sendPluginResult:pluginResult callbackId: self.callbackId];
-}
-
-- (void)onMediaImported:(NSString*)filePath {
-    NSMutableDictionary *result = [NSMutableDictionary dictionary];
-    [result setObject:filePath forKey:@"data"];
-    [result setObject:PROGRESS_MEDIA_IMPORTED forKey:@"type"];
-
-    CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:result];
-    [pluginResult setKeepCallbackAsBool:true];
-    [self.commandDelegate sendPluginResult:pluginResult callbackId: self.callbackId];
 }
 
 - (void) requestPermission:(CDVInvokedUrlCommand *)command {

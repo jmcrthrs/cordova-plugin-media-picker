@@ -29,8 +29,16 @@ import java.util.List;
 public class MediaPicker extends CordovaPlugin {
 	private static final String ERROR_CANCELLED = "CANCELLED";
 	private static final String EXTRA_MEDIA_OPTIONS = "extra_media_options";
+
+	// Open camera roll
 	private static final int REQUEST_CODE_GET_PICTURES = 1000;
+
+	// Optionally request permission then Open camera roll
 	private static final int REQUEST_CODE_GET_PICTURES_PERMISSIONS = 1001;
+
+	// Optionally Request permission
+	private static final int REQUEST_CODE_REQUEST_PERMISSION = 1002;
+
 	private static final String PROGRESS_MEDIA_IMPORTED = "MEDIA_IMPORTED";
 	private static final String PROGRESS_MEDIA_IMPORTING = "MEDIA_IMPORTING";
 	public static String TAG = "MediaPicker";
@@ -71,29 +79,30 @@ public class MediaPicker extends CordovaPlugin {
 		_args = args.getJSONObject(0);
 		_callbackContext = callbackContext;
 
-		if (_args == null) {
+		if (_args == null)
 			LOG.d(TAG, "unable to do something");
-		}
 
 		if (action.equals("cleanUp")) {
 			cleanUp();
+
 			callbackContext.success();
 			return true;
 		}
 
 		if (action.equals("getPictures")) {
-			if (hasPermission()) {
+			if (hasPermission())
 				getPictures();
-			} else {
+			else
 				PermissionHelper.requestPermissions(this, REQUEST_CODE_GET_PICTURES_PERMISSIONS, permissions);
-			}
+
 			return true;
 		}
 
 		if (action.equals("requestPermission")) {
 			if (!hasPermission())
-				PermissionHelper.requestPermissions(this, REQUEST_CODE_GET_PICTURES_PERMISSIONS, permissions);
+				PermissionHelper.requestPermissions(this, REQUEST_CODE_REQUEST_PERMISSION, permissions);
 
+			callbackContext.success();
 			return true;
 		}
 

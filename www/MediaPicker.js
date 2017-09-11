@@ -37,6 +37,6 @@ exports.getPictures = function (success, error, options) {
 exports.requestPermission = function(success, error) {
 	options = {};
 
-	exec(successCallback, error, 'MediaPicker', 'requestPermission', [options]);
+	exec(success, error, 'MediaPicker', 'requestPermission', [options]);
 };
 
