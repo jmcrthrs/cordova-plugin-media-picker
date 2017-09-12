@@ -99,10 +99,11 @@ public class MediaPicker extends CordovaPlugin {
 		}
 
 		if (action.equals("requestPermission")) {
-			if (!hasPermission())
+			if (hasPermission())
+				callbackContext.success();
+			else
 				PermissionHelper.requestPermissions(this, REQUEST_CODE_REQUEST_PERMISSION, permissions);
 
-			callbackContext.success();
 			return true;
 		}
 
@@ -271,18 +272,20 @@ public class MediaPicker extends CordovaPlugin {
 
 	public void onRequestPermissionResult(int requestCode, String[] permissions, int[] grantResults) throws JSONException {
 		PluginResult result;
-		if (_callbackContext != null) {
-			for (int r : grantResults) {
-				if (r == PackageManager.PERMISSION_DENIED) {
-					result = new PluginResult(PluginResult.Status.ILLEGAL_ACCESS_EXCEPTION);
-					_callbackContext.sendPluginResult(result);
-					return;
-				}
-			}
+		if (_callbackContext == null)
+			return;
 
-			if (requestCode == REQUEST_CODE_GET_PICTURES_PERMISSIONS) {
-				getPictures();
+		for (int r : grantResults) {
+			if (r == PackageManager.PERMISSION_DENIED) {
+				result = new PluginResult(PluginResult.Status.ILLEGAL_ACCESS_EXCEPTION);
+				_callbackContext.sendPluginResult(result);
+				return;
 			}
 		}
+
+		if (requestCode == REQUEST_CODE_GET_PICTURES_PERMISSIONS)
+			getPictures();
+		else if (requestCode == REQUEST_CODE_REQUEST_PERMISSION)
+			_callbackContext.success();
 	}
 }

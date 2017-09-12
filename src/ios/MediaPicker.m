@@ -274,7 +274,11 @@
             switch (status)
             {
                 case PHAuthorizationStatusAuthorized:
+                {
+                    CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+                    [self.commandDelegate sendPluginResult:pluginResult callbackId:self.callbackId];
                     break;
+                }
 
                 case PHAuthorizationStatusRestricted:
                 case PHAuthorizationStatusDenied:
@@ -285,7 +289,11 @@
                 }
 
                 default:
+                {
+                    CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"requestAuthorization status is not implemented."];
+                    [self.commandDelegate sendPluginResult:pluginResult callbackId:self.callbackId];
                     break;
+                }
             }
         }];
     }];
