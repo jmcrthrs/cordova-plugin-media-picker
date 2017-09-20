@@ -179,78 +179,80 @@
 #pragma mark - QBImagePickerControllerDelegate
 - (void) qb_imagePickerController:(QBImagePickerController *)imagePickerController didFinishPickingItems:(NSArray *)assets
 {
-    NSLog(@"Selected assets:");
-    NSLog(@"%@", assets);
-    PHImageManager *manager = [PHImageManager defaultManager];
-    PHImageRequestOptions *phImageRequestOptions = [[PHImageRequestOptions alloc] init];
-    phImageRequestOptions.synchronous = NO;
-    BOOL isTemporaryStorage = [self.options[@"isTemporaryStorage"] boolValue] ?: true;
-
-    __block NSMutableArray *resultStrings = [[NSMutableArray alloc] init];
-
-    NSNumber *assetCount = [NSNumber numberWithInt: [assets count]];
-    [self onMediaImporting:assetCount];
-
-    for (PHAsset *asset in assets)
-    {
-        if (asset.mediaType == PHAssetMediaTypeImage)
+    [self.commandDelegate runInBackground:^{
+        NSLog(@"Selected assets:");
+        NSLog(@"%@", assets);
+        PHImageManager *manager = [PHImageManager defaultManager];
+        PHImageRequestOptions *phImageRequestOptions = [[PHImageRequestOptions alloc] init];
+        phImageRequestOptions.synchronous = NO;
+        BOOL isTemporaryStorage = [self.options[@"isTemporaryStorage"] boolValue] ?: true;
+        
+        __block NSMutableArray *resultStrings = [[NSMutableArray alloc] init];
+        
+        NSNumber *assetCount = [NSNumber numberWithInt: [assets count]];
+        [self onMediaImporting:assetCount];
+        
+        for (PHAsset *asset in assets)
         {
-            [manager requestImageDataForAsset: asset options: phImageRequestOptions resultHandler:^(NSData *imageData, NSString *dataUTI, UIImageOrientation orientation, NSDictionary *info) {
-                NSString *filePath = [self getWritableFile:@"jpg" isTemporaryStorage:isTemporaryStorage];
-                NSURL *fileURL = [NSURL fileURLWithPath:filePath isDirectory:NO];
-
-                [imageData writeToFile:filePath atomically:YES];
-                [resultStrings addObject:[fileURL absoluteString]];
-
-                if ([resultStrings count] == [assets count]) {
-                    CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsArray:resultStrings];
-                    [self didFinishImagesWithResult:pluginResult];
-                }
-            }];
-        }
-        else if (asset.mediaType == PHAssetMediaTypeVideo)
-        {
-            dispatch_semaphore_t sem = dispatch_semaphore_create(0);
-            [manager requestAVAssetForVideo:asset options:nil resultHandler:^(AVAsset *videoAsset, AVAudioMix *audioMix, NSDictionary *info) {
-                if ([videoAsset isKindOfClass:[AVURLAsset class]])
-                {
-                    NSString *filePath = [self getWritableFile:@"mp4" isTemporaryStorage:isTemporaryStorage];
+            if (asset.mediaType == PHAssetMediaTypeImage)
+            {
+                [manager requestImageDataForAsset: asset options: phImageRequestOptions resultHandler:^(NSData *imageData, NSString *dataUTI, UIImageOrientation orientation, NSDictionary *info) {
+                    NSString *filePath = [self getWritableFile:@"jpg" isTemporaryStorage:isTemporaryStorage];
                     NSURL *fileURL = [NSURL fileURLWithPath:filePath isDirectory:NO];
-
-                    NSURL *inputURL = [(AVURLAsset*)videoAsset URL];
-                    /*NSData *videoData = [NSData dataWithContentsOfURL:inputURL];
-
-                     [videoData writeToFile: filePath atomically:YES];*/
-                    NSError *error = nil ;
-                    BOOL res = [[NSFileManager defaultManager] copyItemAtPath:[inputURL path] toPath:filePath error:&error];
-                    if(!res)
-                    {
-                        CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:[error localizedDescription]];
-                        [self.commandDelegate sendPluginResult:pluginResult callbackId:self.callbackId];
-                    }
-
-                   	[self onMediaImported:[fileURL absoluteString]];
-
+                    
+                    [imageData writeToFile:filePath atomically:YES];
                     [resultStrings addObject:[fileURL absoluteString]];
-                    if ([resultStrings count] == [assets count])
-                    {
+                    
+                    if ([resultStrings count] == [assets count]) {
                         CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsArray:resultStrings];
                         [self didFinishImagesWithResult:pluginResult];
                     }
-                }
-
-                dispatch_semaphore_signal(sem);
-            }];
-            dispatch_semaphore_wait(sem, DISPATCH_TIME_FOREVER);
+                }];
+            }
+            else if (asset.mediaType == PHAssetMediaTypeVideo)
+            {
+                dispatch_semaphore_t sem = dispatch_semaphore_create(0);
+                [manager requestAVAssetForVideo:asset options:nil resultHandler:^(AVAsset *videoAsset, AVAudioMix *audioMix, NSDictionary *info) {
+                    if ([videoAsset isKindOfClass:[AVURLAsset class]])
+                    {
+                        NSString *filePath = [self getWritableFile:@"mp4" isTemporaryStorage:isTemporaryStorage];
+                        NSURL *fileURL = [NSURL fileURLWithPath:filePath isDirectory:NO];
+                        
+                        NSURL *inputURL = [(AVURLAsset*)videoAsset URL];
+                        /*NSData *videoData = [NSData dataWithContentsOfURL:inputURL];
+                         
+                         [videoData writeToFile: filePath atomically:YES];*/
+                        NSError *error = nil ;
+                        BOOL res = [[NSFileManager defaultManager] copyItemAtPath:[inputURL path] toPath:filePath error:&error];
+                        if(!res)
+                        {
+                            CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:[error localizedDescription]];
+                            [self.commandDelegate sendPluginResult:pluginResult callbackId:self.callbackId];
+                        }
+                        
+                        [self onMediaImported:[fileURL absoluteString]];
+                        
+                        [resultStrings addObject:[fileURL absoluteString]];
+                        if ([resultStrings count] == [assets count])
+                        {
+                            CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsArray:resultStrings];
+                            [self didFinishImagesWithResult:pluginResult];
+                        }
+                    }
+                    
+                    dispatch_semaphore_signal(sem);
+                }];
+                dispatch_semaphore_wait(sem, DISPATCH_TIME_FOREVER);
+            }
+            else
+            {
+                CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"Unhandled Asset Type."];
+                [self.commandDelegate sendPluginResult:pluginResult callbackId:self.callbackId];
+                self.callbackId = nil;
+            }
         }
-        else
-        {
-            CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"Unhandled Asset Type."];
-            [self.commandDelegate sendPluginResult:pluginResult callbackId:self.callbackId];
-            self.callbackId = nil;
-        }
-    }
-
+    }];
+    
     __weak MediaPicker* weakSelf = self;
     [weakSelf.viewController dismissViewControllerAnimated:YES completion:NULL];
 }
