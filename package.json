@@ -3,14 +3,12 @@
   "cordova": {
     "id": "cordova-plugin-media-picker",
     "platforms": [
-      "android",
       "ios"
     ]
   },
   "description": "Thumbnail view of camera roll, allowing multiple items to be selected",
   "keywords": [
     "cordova",    
-    "cordova-android",
     "cordova-ios",
     "ecosystem:cordova",
     "multiple media selction"
@@ -21,5 +19,5 @@
     "type": "git",
     "url": "https://github.com/busivid/cordova-plugin-media-picker"
   },
-  "version": "1.0.0"
+  "version": "1.0.1"
 }
